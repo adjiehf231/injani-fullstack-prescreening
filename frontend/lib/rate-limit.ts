@@ -64,8 +64,8 @@ export class MemoryRateLimiter {
   private sweep() {
     const now = Date.now();
     const windowStart = now - this.config.windowMs;
-    for (const [key, record] of this.cache.entries()) {
-      record.timestamps = record.timestamps.filter((ts) => ts > windowStart);
+    for (const [key, record] of Array.from(this.cache.entries())) {
+      record.timestamps = record.timestamps.filter((ts: number) => ts > windowStart);
       if (record.timestamps.length === 0) {
         this.cache.delete(key);
       }
