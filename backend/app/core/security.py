@@ -82,6 +82,13 @@ def verify_jwt_token(
     Fails closed if signature is invalid, payload is forged, or token is expired.
     """
     secret = secret_key or settings.jwt_secret
+    if not secret:
+        raise DomainException(
+            message="Server configuration error: JWT secret is not configured.",
+            code="SERVER_CONFIG_ERROR",
+            status_code=500
+        )
+
     if not token or not isinstance(token, str):
         raise DomainException(
             message="Token is missing or empty.",
@@ -99,7 +106,24 @@ def verify_jwt_token(
 
     header_b64, body_b64, signature_b64 = parts
 
-    # 1. Cryptographic Signature Verification
+    # 1. Decode Header and Validate Algorithm (prevent 'none' or asymmetric confusion attacks)
+    try:
+        header = json.loads(_base64url_decode(header_b64).decode("utf-8"))
+    except Exception:
+        raise DomainException(
+            message="Corrupted JWT header.",
+            code="INVALID_TOKEN",
+            status_code=401
+        )
+
+    if header.get("alg") != "HS256":
+        raise DomainException(
+            message=f"Unsupported JWT algorithm: {header.get('alg')}. Only HS256 is permitted.",
+            code="UNSUPPORTED_ALGORITHM",
+            status_code=401
+        )
+
+    # 2. Cryptographic Signature Verification
     signing_input = f"{header_b64}.{body_b64}".encode("utf-8")
     expected_signature = hmac.new(secret.encode("utf-8"), msg=signing_input, digestmod=hashlib.sha256).digest()
     expected_sig_b64 = _base64url_encode(expected_signature)
@@ -111,7 +135,7 @@ def verify_jwt_token(
             status_code=401
         )
 
-    # 2. Decode and Validate Claims
+    # 3. Decode and Validate Claims
     try:
         payload = json.loads(_base64url_decode(body_b64).decode("utf-8"))
     except Exception:
@@ -121,14 +145,20 @@ def verify_jwt_token(
             status_code=401
         )
 
-    # 3. Check Expiration
+    # 4. Mandatory Expiration Check
     exp = payload.get("exp")
-    if exp is not None and isinstance(exp, (int, float)):
-        if time.time() > exp:
-            raise DomainException(
-                message="Token has expired. Please refresh your credentials.",
-                code="TOKEN_EXPIRED",
-                status_code=401
-            )
+    if exp is None or not isinstance(exp, (int, float)):
+        raise DomainException(
+            message="Missing or invalid mandatory 'exp' expiration claim.",
+            code="INVALID_TOKEN",
+            status_code=401
+        )
+
+    if time.time() > exp:
+        raise DomainException(
+            message="Token has expired. Please refresh your credentials.",
+            code="TOKEN_EXPIRED",
+            status_code=401
+        )
 
     return payload

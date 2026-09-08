@@ -64,7 +64,7 @@ jobs:
         run: npm run lint
 
       - name: Cryptographic Auth Tests
-        run: npm run test
+        run: npm run test:auth
 
       - name: Production Build
         run: npm run build

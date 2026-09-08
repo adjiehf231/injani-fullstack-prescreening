@@ -8,7 +8,8 @@
     "start": "node node_modules/next/dist/bin/next start",
     "lint": "node node_modules/next/dist/bin/next lint",
     "typecheck": "node node_modules/typescript/bin/tsc --noEmit",
-    "test": "node scripts/test-auth.mjs"
+    "test:auth": "node node_modules/tsx/dist/cli.mjs scripts/test-auth.ts",
+    "test": "npm run test:auth"
   },
   "dependencies": {
     "jose": "^5.9.6",
@@ -25,6 +26,7 @@
     "eslint-config-next": "14.2.15",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
+    "tsx": "^4.23.13",
     "typescript": "^5.5.4"
   }
 }

@@ -15,8 +15,8 @@ It includes:
 - A complete, runnable **Next.js 14 (App Router)** frontend with Edge Middleware, cryptographic JWT verification (`jose`), and SLA analytics dashboard.
 - A complete, runnable **FastAPI (Python)** backend with Pydantic v2 schemas, cryptographic JWT verification, Cloud Tasks worker endpoint, rate limiting, and WhatsApp order extraction service.
 - Production **PostgreSQL 16** schemas with generated columns, range partitioning, and keyset-aligned indexing.
-- Automated test suites (21 backend unit tests with pytest; frontend typechecking, linting, authentication verification, and production build).
-- Separated GitHub Actions workflows: zero-secret quality CI ([`.github/workflows/ci.yml`](./.github/workflows/ci.yml)) and guarded cloud deployment ([`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml)).
+- Automated test suites (23 backend unit tests with pytest; frontend typechecking, linting, 8 strict cryptographic authentication tests via tsx, and Next.js production build).
+- Separated GitHub Actions workflows: zero-credential automated Quality CI ([`.github/workflows/ci.yml`](./.github/workflows/ci.yml)) and guarded manual cloud deployment ([`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml)).
 - Generated PDF technical report: [`docs/Adjie_Hari_Fajar_Fullstack_Developer_Prescreening_PT_Injani_Systems.pdf`](./docs/Adjie_Hari_Fajar_Fullstack_Developer_Prescreening_PT_Injani_Systems.pdf).
 
 ---
@@ -30,12 +30,12 @@ It includes:
   - **P4:** Motivation for seeking this role at PT Injani Systems.
   - **P5:** Salary expectations format.
 - **Part B (Technical Questions):**
-  - **Q1:** Self-hosted open-weight LLM (Gemma 3 / Ollama / vLLM) for WhatsApp order extraction, prompt structuring, evaluation metrics, and business data safety boundaries.
+  - **Q1:** Self-hosted open-weight LLM (Gemma 3 4B / 12B via Ollama / vLLM) for WhatsApp order extraction, prompt structuring, evaluation metrics, and business data safety boundaries.
   - **Q2:** SLA analytics dashboard architecture, PostgreSQL generated columns schema, and multi-step approval bottleneck tracking.
   - **Q3:** Google Cloud Tasks scheduled workflows: local emulation, production Cloud Logging / Cloud Trace monitoring, and dead-letter handling.
   - **Q4:** PostgreSQL query diagnosis with `EXPLAIN (ANALYZE, BUFFERS)`, composite index order `(user_id, status, created_at DESC, id DESC)` for keyset pagination, and table partitioning.
   - **Q5:** Next.js 14 API architecture: cryptographic JWT verification in Edge Middleware with `jose`, defense-in-depth authorization (IDOR prevention), rate limiting, and RFC 7807 error envelopes.
-  - **Q6:** Python async workers, comparison of FastAPI `BackgroundTasks` vs Celery vs Cloud Tasks, real-time progress reporting, and HTTP idempotency locks.
+  - **Q6:** Python async workers, comparison of FastAPI `BackgroundTasks` vs Celery vs Cloud Tasks, task progress reporting, and HTTP idempotency locks.
   - **Q7:** End-to-end fullstack system design, Docker containers, Workload Identity Federation (WIF) CI/CD, and GCP Cloud Run deployment.
 
 ---
@@ -237,29 +237,31 @@ pytest -v
 
 **Results:**
 ```text
-tests/test_cloud_tasks_worker.py::test_cloud_task_worker_execution PASSED                 [  4%]
-tests/test_cloud_tasks_worker.py::test_cloud_task_worker_terminal_failure_dlq PASSED       [  9%]
-tests/test_error_and_security.py::test_standardized_validation_error_format PASSED        [ 14%]
-tests/test_error_and_security.py::test_standardized_not_found_error_format PASSED         [ 19%]
-tests/test_error_and_security.py::test_hmac_webhook_verification_success_and_tampering PASSED [ 23%]
-tests/test_error_and_security.py::test_rate_limiter_exceeded PASSED                      [ 28%]
-tests/test_idempotency_and_tasks.py::test_idempotent_order_submission_prevents_duplicate_runs PASSED [ 33%]
-tests/test_idempotency_and_tasks.py::test_concurrent_idempotency_request_conflict PASSED [ 38%]
-tests/test_idempotency_and_tasks.py::test_async_task_progress_lifecycle[asyncio] PASSED   [ 42%]
-tests/test_jwt_security.py::test_create_and_verify_valid_jwt PASSED                       [ 47%]
-tests/test_jwt_security.py::test_expired_jwt_rejected PASSED                              [ 52%]
-tests/test_jwt_security.py::test_malformed_jwt_rejected PASSED                            [ 57%]
-tests/test_jwt_security.py::test_tampered_payload_jwt_rejected PASSED                     [ 61%]
-tests/test_jwt_security.py::test_invalid_signature_jwt_rejected PASSED                    [ 66%]
-tests/test_jwt_security.py::test_api_route_with_valid_and_invalid_jwt PASSED               [ 71%]
-tests/test_order_extractor.py::test_order_intent_and_entity_extraction PASSED            [ 76%]
-tests/test_order_extractor.py::test_indonesian_unit_normalization PASSED                 [ 80%]
-tests/test_order_extractor.py::test_inquiry_intent_detection PASSED                      [ 85%]
-tests/test_order_extractor.py::test_complaint_intent_detection PASSED                    [ 90%]
-tests/test_order_extractor.py::test_prompt_builder_structure PASSED                      [ 95%]
-tests/test_order_extractor.py::test_evaluator_metrics_calculation PASSED                 [100%]
+tests/test_cloud_tasks_worker.py::test_cloud_task_worker_execution_success PASSED          [  4%]
+tests/test_cloud_tasks_worker.py::test_cloud_task_worker_dead_letter_on_max_retries PASSED [  8%]
+tests/test_error_and_security.py::test_standardized_validation_error_format PASSED         [ 13%]
+tests/test_error_and_security.py::test_standardized_not_found_error_format PASSED          [ 17%]
+tests/test_error_and_security.py::test_hmac_webhook_verification_success_and_tampering PASSED [ 21%]
+tests/test_error_and_security.py::test_rate_limiter_exceeded PASSED                       [ 26%]
+tests/test_idempotency_and_tasks.py::test_idempotent_order_submission_prevents_duplicate_runs PASSED [ 30%]
+tests/test_idempotency_and_tasks.py::test_concurrent_idempotency_request_conflict PASSED  [ 34%]
+tests/test_idempotency_and_tasks.py::test_async_task_progress_lifecycle[asyncio] PASSED    [ 39%]
+tests/test_jwt_security.py::test_valid_jwt_token_verification PASSED                      [ 43%]
+tests/test_jwt_security.py::test_forged_jwt_signature_rejected PASSED                     [ 47%]
+tests/test_jwt_security.py::test_tampered_payload_rejected PASSED                         [ 52%]
+tests/test_jwt_security.py::test_expired_jwt_token_rejected PASSED                        [ 56%]
+tests/test_jwt_security.py::test_malformed_jwt_token_rejected PASSED                      [ 60%]
+tests/test_jwt_security.py::test_empty_jwt_token_rejected PASSED                          [ 65%]
+tests/test_jwt_security.py::test_unsupported_algorithm_rejected PASSED                    [ 69%]
+tests/test_jwt_security.py::test_missing_exp_claim_rejected PASSED                        [ 73%]
+tests/test_order_extractor.py::test_order_intent_and_entity_extraction PASSED             [ 78%]
+tests/test_order_extractor.py::test_indonesian_unit_normalization PASSED                  [ 82%]
+tests/test_order_extractor.py::test_inquiry_intent_detection PASSED                       [ 86%]
+tests/test_order_extractor.py::test_complaint_intent_detection PASSED                     [ 91%]
+tests/test_order_extractor.py::test_prompt_builder_structure PASSED                       [ 95%]
+tests/test_order_extractor.py::test_evaluator_metrics_calculation PASSED                  [100%]
 
-======================= 21 passed in 1.48s =======================
+======================= 23 passed in 1.08s =======================
 ```
 
 ### 2. Frontend Test Suite & Build
@@ -269,20 +271,21 @@ cd frontend
 
 # 1. Typecheck
 npm run typecheck
-# Result: 0 errors
+# Result: Exit code 0 (Zero type errors)
 
 # 2. ESLint
 npm run lint
-# Result: 0 errors
+# Result: Exit code 0 (No ESLint warnings or errors)
 
-# 3. Cryptographic JWT Verification Suite
-npm run test
-# Result: 5/5 auth test cases passed (valid token, tampered payload rejection,
-# invalid signature rejection, expired token rejection, missing token rejection)
+# 3. Strict Cryptographic Auth & Security Test Suite
+npm run test:auth
+# Result: 8/8 strict test cases passed via tsx (valid token, forged signature rejection,
+# tampered payload rejection, expired token rejection, malformed token rejection,
+# empty token rejection, valid webhook HMAC, tampered webhook HMAC rejection)
 
 # 4. Production Next.js Build
 npm run build
-# Result: Production build compiled successfully
+# Result: Production build compiled successfully (Exit code 0)
 ```
 
 ---
@@ -312,13 +315,13 @@ npm run build
 4. **React Server Components & URL State for SLA Analytics (Q2):**  
    Delegated analytical percentiles and aggregations to PostgreSQL generated columns and Server Components. Filters are stored in URL query parameters, ensuring link shareability and zero client-side state boilerplate.
 5. **Separation of Quality CI from Cloud Deployment (DevOps):**  
-   Created a standalone `.github/workflows/ci.yml` that validates code quality (backend pytest, frontend typecheck, lint, test, build) without requiring production cloud secrets. Cloud deployment runs in `.github/workflows/deploy.yml` with Workload Identity Federation.
+   Created a standalone automated Quality CI workflow ([`.github/workflows/ci.yml`](./.github/workflows/ci.yml)) that validates code quality (backend pytest, frontend typecheck, lint, auth tests, build) without requiring production cloud secrets. Cloud deployment is decoupled into a manual `workflow_dispatch` pipeline ([`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml)) using Workload Identity Federation.
 
 ---
 
 ## Assumptions
 
-- **LLM Runtime:** Gemma 3 8B or 4B is intended for deployment via vLLM or Ollama on a GPU instance. The local test suite uses a deterministic rule-based extractor to guarantee 100% reproducible testing without requiring an active GPU daemon.
+- **LLM Runtime:** Gemma 3 (4B for local prototyping / smaller instances, or 12B for high-throughput GPU serving) is intended for deployment via vLLM or Ollama. The local test suite uses a deterministic rule-based extractor to guarantee 100% reproducible testing without requiring an active GPU daemon.
 - **Single-Instance Caching:** The rate limiting and idempotency stores are implemented using thread-safe in-memory stores suitable for single-instance review. For multi-container production deployments, these components swap to Upstash Redis or Redis Cluster without changing public interface signatures.
 
 ---

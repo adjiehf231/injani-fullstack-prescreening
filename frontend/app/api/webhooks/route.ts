@@ -9,7 +9,10 @@ import { verifyWebhookHmac } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   const signature = request.headers.get('x-hub-signature-256');
-  const secret = process.env.WEBHOOK_SECRET || 'injani-webhook-secret-token';
+  const secret = process.env.WEBHOOK_SECRET;
+  if (!secret) {
+    return apiError(500, 'SERVER_CONFIG_ERROR', 'Server configuration error: WEBHOOK_SECRET is not configured.');
+  }
 
   if (!signature) {
     return apiError(401, 'MISSING_SIGNATURE', 'Missing required X-Hub-Signature-256 header.');

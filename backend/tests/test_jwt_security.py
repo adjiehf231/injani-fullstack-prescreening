@@ -84,3 +84,36 @@ def test_empty_jwt_token_rejected():
 
     assert exc_info.value.status_code == 401
     assert exc_info.value.code == "UNAUTHORIZED"
+
+
+def test_unsupported_algorithm_rejected():
+    import json
+    from app.core.security import _base64url_encode
+    header = _base64url_encode(json.dumps({"alg": "none", "typ": "JWT"}).encode())
+    body = _base64url_encode(json.dumps({"sub": "usr_none", "exp": int(time.time()) + 3600}).encode())
+    token = f"{header}.{body}.invalidsig"
+
+    with pytest.raises(DomainException) as exc_info:
+        verify_jwt_token(token, secret_key=SECRET_KEY)
+
+    assert exc_info.value.status_code == 401
+    assert exc_info.value.code == "UNSUPPORTED_ALGORITHM"
+
+
+def test_missing_exp_claim_rejected():
+    import json
+    import hmac
+    import hashlib
+    from app.core.security import _base64url_encode
+    header = _base64url_encode(json.dumps({"alg": "HS256", "typ": "JWT"}).encode())
+    body = _base64url_encode(json.dumps({"sub": "usr_no_exp"}).encode())
+    signing_input = f"{header}.{body}".encode("utf-8")
+    sig = _base64url_encode(hmac.new(SECRET_KEY.encode("utf-8"), msg=signing_input, digestmod=hashlib.sha256).digest())
+    token = f"{header}.{body}.{sig}"
+
+    with pytest.raises(DomainException) as exc_info:
+        verify_jwt_token(token, secret_key=SECRET_KEY)
+
+    assert exc_info.value.status_code == 401
+    assert exc_info.value.code == "INVALID_TOKEN"
+    assert "Missing or invalid mandatory 'exp'" in exc_info.value.message

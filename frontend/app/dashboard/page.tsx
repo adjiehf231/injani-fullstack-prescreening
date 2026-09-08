@@ -60,7 +60,7 @@ export default async function SLADashboardPage({ searchParams }: DashboardPagePr
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900">SLA & Process Bottleneck Analytics</h1>
           <p className="text-sm text-gray-500">
-            Real-time multi-step workflow turnaround and SLA compliance monitoring
+            Multi-step workflow turnaround and SLA compliance monitoring (SLA Analytics Demo / Sample Data)
           </p>
         </div>
 

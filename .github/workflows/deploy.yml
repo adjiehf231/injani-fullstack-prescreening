@@ -1,8 +1,8 @@
 name: CD Deployment Pipeline
 
+# Deployment workflow is intentionally manual and requires repository environment credentials.
+# This prevents public assessment evaluation pushes from failing due to unavailable cloud secrets.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -24,7 +24,6 @@ jobs:
   deploy-frontend:
     name: Deploy Next.js to Vercel
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     defaults:
       run:
         working-directory: frontend
@@ -57,7 +56,6 @@ jobs:
   deploy-backend:
     name: Deploy Python FastAPI to Cloud Run
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     defaults:
       run:
         working-directory: backend

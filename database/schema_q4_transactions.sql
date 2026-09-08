@@ -35,7 +35,7 @@ CREATE TABLE transactions_unoptimized (
 -- 1. user_id = 45892 (Equality)
 -- 2. status = 'SETTLED' (Equality)
 -- 3. created_at DESC (Range comparison + pre-sorted for ORDER BY created_at DESC)
--- Optional: INCLUDE (amount, currency) to allow 100% INDEX ONLY SCAN without heap access!
+-- Optional: INCLUDE (amount, currency) can support an index-only scan when PostgreSQL's visibility map allows, avoiding heap lookups for covered columns.
 
 CREATE INDEX idx_transactions_user_status_created_id 
 ON transactions_unoptimized (user_id, status, created_at DESC, id DESC)
@@ -45,9 +45,8 @@ INCLUDE (amount, currency);
 -- ============================================================================
 -- OPTIMIZATION STRATEGY 2: PARTIAL INDEX FOR HIGH-SKEW STATUSES
 -- ============================================================================
--- In typical transaction systems, 95%+ of rows are 'SETTLED' or 'COMPLETED'.
--- If queries predominantly filter active/pending items:
--- Size of index drops from ~300 MB to ~10 MB, fitting entirely in RAM!
+-- In transactional systems with status skew (e.g., small fraction pending vs settled),
+-- partial indexes index only the active subset, keeping index size minimal and hot in buffer cache.
 
 CREATE INDEX idx_transactions_pending_user_created 
 ON transactions_unoptimized (user_id, created_at DESC) 

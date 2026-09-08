@@ -303,8 +303,9 @@ def build_pdf():
         [Paragraph("<b>Hiring Organization</b>", styles['TableCell']), Paragraph("PT Injani Systems", styles['TableCellBold'])],
         [Paragraph("<b>Submission Date</b>", styles['TableCell']), Paragraph("September 2026", styles['TableCellBold'])],
         [Paragraph("<b>Repository</b>", styles['TableCell']), Paragraph("github.com/adjiehf231/injani-fullstack-prescreening", styles['TableCellBold'])],
-        [Paragraph("<b>Backend Test Status</b>", styles['TableCell']), Paragraph("pytest — 21/21 Tests Passed (100%)", styles['TableCellBold'])],
-        [Paragraph("<b>Frontend Status</b>", styles['TableCell']), Paragraph("Next.js 14 App Router — Typecheck, Lint & Build Passed", styles['TableCellBold'])],
+        [Paragraph("<b>Backend Test Status</b>", styles['TableCell']), Paragraph("pytest — 23/23 Automated Tests Passed (100%)", styles['TableCellBold'])],
+        [Paragraph("<b>Frontend Auth Tests</b>", styles['TableCell']), Paragraph("tsx — 8/8 Strict Cryptographic Tests Passed", styles['TableCellBold'])],
+        [Paragraph("<b>Frontend Build Status</b>", styles['TableCell']), Paragraph("Next.js 14 App Router — Typecheck, Lint & Build Passed", styles['TableCellBold'])],
         [Paragraph("<b>Security Verification</b>", styles['TableCell']), Paragraph("Cryptographic JWT Verification (jose) & HMAC Webhooks", styles['TableCellBold'])],
     ]
     t_meta = Table(meta_data, colWidths=[150, 337])
@@ -603,7 +604,7 @@ def build_pdf():
     
     notes_html = (
         "<b>1. Architectural Assumptions:</b><br/>"
-        "• <i>Open-Weight LLM:</i> The reference architecture targets Gemma 3 (8B/4B) served via vLLM with PagedAttention on an NVIDIA GPU (L4 / A10G) or Ollama for local prototyping. The repository includes an automated deterministic evaluation harness and prompt template to ensure zero-cost testing without GPU dependencies.<br/>"
+        "• <i>Open-Weight LLM:</i> The reference architecture targets Gemma 3 (4B / 12B) served via vLLM with PagedAttention on an NVIDIA GPU (L4 / A10G) or Ollama for local prototyping. The repository includes an automated deterministic evaluation harness and prompt template to ensure zero-cost testing without GPU dependencies.<br/>"
         "• <i>State Persistence:</i> For local review, rate limiting and idempotency stores are implemented as thread-safe in-memory stores. In multi-container cloud deployments (Cloud Run + Vercel), these back cleanly to Upstash Redis or AWS ElastiCache without contract changes.<br/><br/>"
         "<b>2. Production Scaling Recommendations:</b><br/>"
         "• <i>PostgreSQL:</i> Use declarative monthly range partitioning on <code>transactions</code> to maintain constant-time B-tree indexes as transaction volumes exceed 10M+ rows.<br/>"
