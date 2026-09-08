@@ -1,6 +1,9 @@
 # Agents directory explicitly excluded
 .agents/
 
+# Proprietary company questionnaire file
+fullstack_developer_prescreening SEPT 2026.pdf
+
 # Python virtual environment & cache
 backend/.venv/
 .venv/
@@ -15,6 +18,7 @@ node_modules/
 out/
 build/
 dist/
+*.tsbuildinfo
 
 # Local environment secrets
 .env

@@ -1,6 +1,6 @@
 # PT Injani Systems — Fullstack Developer Prescreening Submission
 
-**Candidate:** [CANDIDATE INPUT REQUIRED: Nama Lengkap Kandidat]  
+**Candidate:** Adjie Hari Fajar  
 **Position:** Programmer (NextJS & Python)  
 **Date:** September 2026  
 **Repository Source:** [`PT Injani Systems - Programmer (NextJS & Python) Workspace`](file:///d:/DOKUMEN%20AHF/Programmer%20%28NextJS%20&%20Python%29)
@@ -254,25 +254,29 @@ Parse this message: "{message_text}"<end_of_turn>
 
 ---
 
-### c) Concrete Evaluation Methodology & Metrics
+### c) Concrete Evaluation Methodology & Business Data Safety
 
-We evaluate extraction accuracy using an automated benchmark pipeline consisting of 500+ annotated real-world customer chat samples covering clear orders, multi-item batches, colloquial Indonesian slang ("sak", "zak", "biji", "kaleng"), ambiguous quantities, price inquiries, and complaints.
+#### 1. Implemented vs. Proposed Evaluation Flow:
+- **Demonstrated in Repository:** The repository includes a deterministic evaluation sample in [`backend/app/services/evaluator.py`](file:///d:/DOKUMEN%20AHF/Programmer%20%28NextJS%20&%20Python%29/backend/app/services/evaluator.py) executed via [`backend/tests/test_order_extractor.py`](file:///d:/DOKUMEN%20AHF/Programmer%20%28NextJS%20&%20Python%29/backend/tests/test_order_extractor.py). This verifies the slot-matching calculation, intent precision/recall formulas, and unit normalization rules without external dependencies.
+- **Proposed for Production:** For production qualification prior to live deployment, I would build an annotated evaluation benchmark containing at least 500 representative customer conversations covering edge cases: multi-item colloquial Indonesian chats ("sak", "zak", "biji", "kaleng"), ambiguous quantities, typos, and price negotiations.
 
-#### 1. Evaluation Metrics Tracked:
+#### 2. Evaluation Metrics Tracked:
 
 | Metric | Formula | Production Target | Purpose |
 |---|---|---|---|
-| **Intent Accuracy** | $\frac{\text{Correct Intent Predictions}}{\text{Total Samples}}$ | **$\ge 96.0\%$** | Measures classification correctness between order, inquiry, complaint, other. |
-| **Entity Precision** | $\frac{\text{True Positive Extracted Items}}{\text{Total Extracted Items}}$ | **$\ge 95.0\%$** | Penalizes hallucinated items or ghost quantities. |
-| **Entity Recall** | $\frac{\text{True Positive Extracted Items}}{\text{Total Ground Truth Items}}$ | **$\ge 94.0\%$** | Measures ability to capture all items mentioned by the customer. |
-| **Entity F1-Score** | $2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$ | **$\ge 94.5\%$** | Harmonic mean of precision and recall on slots `(item, qty, unit)`. |
-| **Exact Match (EM)** | $\frac{\text{Fully Identical Extracted Orders}}{\text{Total Order Samples}}$ | **$\ge 90.0\%$** | Strict metric: All items, quantities, units, and intent must match 100%. |
-| **JSON Validity Rate** | $\frac{\text{Syntactically Valid JSON}}{\text{Total Generations}}$ | **$\ge 99.8\%$** | Verifies constrained decoding compliance. |
-| **P95 Inference Latency** | $95^{\text{th}}$ percentile response duration | **$< 1,200 \text{ ms}$** | Ensures chat responsiveness on WhatsApp. |
+| **Intent Accuracy** | $\frac{\text{Correct Intent Predictions}}{\text{Total Samples}}$ | $\ge 96.0\%$ | Measures classification correctness between order, inquiry, complaint, other. |
+| **Entity Precision** | $\frac{\text{True Positive Extracted Items}}{\text{Total Extracted Items}}$ | $\ge 95.0\%$ | Penalizes hallucinated items or ghost quantities. |
+| **Entity Recall** | $\frac{\text{True Positive Extracted Items}}{\text{Total Ground Truth Items}}$ | $\ge 94.0\%$ | Measures ability to capture all items mentioned by the customer. |
+| **Entity F1-Score** | $2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$ | $\ge 94.5\%$ | Harmonic mean of precision and recall on slots `(item, qty, unit)`. |
+| **Exact Match (EM)** | $\frac{\text{Fully Identical Extracted Orders}}{\text{Total Order Samples}}$ | $\ge 90.0\%$ | Strict metric: All items, quantities, units, and intent must match 100%. |
+| **JSON Validity Rate** | $\frac{\text{Syntactically Valid JSON}}{\text{Total Generations}}$ | $\ge 99.8\%$ | Verifies constrained decoding compliance. |
+| **P95 Latency Target** | $95^{\text{th}}$ percentile response duration | $< 1,200 \text{ ms}$ | Target response duration for WhatsApp user responsiveness. |
 
-#### 2. Evaluation Harness Implementation:
-We implemented the concrete evaluation harness in [`backend/app/services/evaluator.py`](file:///d:/DOKUMEN%20AHF/Programmer%20%28NextJS%20&%20Python%29/backend/app/services/evaluator.py).
-The automated test runner [`backend/tests/test_order_extractor.py`](file:///d:/DOKUMEN%20AHF/Programmer%20%28NextJS%20&%20Python%29/backend/tests/test_order_extractor.py) runs this harness directly, verifying slot matching and metric calculations.
+#### 3. Business Data Safety Boundary:
+An essential engineering principle in commerce LLM integration is: **The LLM must never be the source of truth for business data.**
+- **Strict Role Separation:** The LLM is used exclusively for *intent classification* and *unstructured text extraction* (identifying product aliases, requested quantities, and units).
+- **Authoritative Data Sources:** Product catalogs, real-time stock levels, current pricing tiers, volume discounts, tax calculations, and final order totals must be retrieved directly from PostgreSQL / ERP business services.
+- **Hallucination Prevention:** The prompt explicitly prohibits the model from generating binding prices or inventing stock availability. If a customer asks "Berapa harga semen?", the LLM classifies the intent as `inquiry` and extracts `item_name: "semen"`. The backend backend service queries the database for active catalog prices and formats the verified response.
 
 ---
 
@@ -574,21 +578,21 @@ LIMIT 50;
 
 ### b) Indexing Strategy: Composite vs. Partial Indexes
 
-#### 1. Composite B-Tree Index (General Access Pattern):
-The order of columns in a multi-column B-tree index is strictly governed by **Equality First, Range/Sort Last**:
+#### 1. Composite B-Tree Index (Equality First, Keyset Sort Order, Covering Included Columns):
+The order of columns in a multi-column B-tree index is strictly governed by **Equality First, Keyset Sort Order, Covering Payload**:
 
 ```sql
-CREATE INDEX idx_transactions_user_status_created 
-ON transactions (user_id, status, created_at DESC)
+CREATE INDEX idx_transactions_user_status_created_id 
+ON transactions (user_id, status, created_at DESC, id DESC)
 INCLUDE (amount);
 ```
 
 **Why this specific column order?**
-- `user_id`: Filtered with equality (`= 45892`). Narrowest user scope.
+- `user_id`: Filtered with equality (`= 45892`).
 - `status`: Filtered with equality (`= 'SETTLED'`).
-- `created_at DESC`: Filtered with range (`>= ... AND < ...`) and matched with `ORDER BY created_at DESC`.
-- Because equality columns precede the range column, PostgreSQL walks down the B-tree directly to the exact leaf node for `(45892, 'SETTLED')`, scans only the entries matching the date range, and reads them in the exact sort order requested.
-- **`INCLUDE (amount)` (Covering Index):** Allows an **Index-Only Scan**. PostgreSQL reads `id`, `user_id`, `status`, `created_at`, and `amount` directly from the index tree, avoiding heap table disk reads entirely if visibility maps are current. Latency drops from 4,000ms to $< 2\text{ ms}$.
+- `created_at DESC, id DESC`: Matches the sorting and keyset pagination cursor `WHERE (created_at, id) < (:last_seen_created_at, :last_seen_id) ORDER BY created_at DESC, id DESC`. Including `id DESC` guarantees deterministic pagination without ties and allows the planner to fulfill the ordering directly from the B-tree index without an in-memory or disk sort node.
+- **`INCLUDE (amount)` (Covering Index):** Keeps `amount` in the leaf pages without bloating non-leaf branch nodes. Because `id`, `user_id`, `status`, and `created_at` are in the index key and `amount` is in the payload, all required projection columns are present within the index.
+- **Expected Planner Behavior:** If the table's visibility map indicates the relevant data pages are all-visible (maintained via PostgreSQL `VACUUM` / autovacuum), the planner chooses an **Index Only Scan**, reading data straight from the index pages and bypassing table heap pages entirely. If pages are not yet marked visible, the planner performs an Index Scan with minimal heap lookups.
 
 #### 2. Partial Index (High-Skew Statuses):
 In production transaction systems, typically **95%+ of rows are 'SETTLED'**, while only 2–5% are 'PENDING' or 'FAILED'.  
@@ -651,42 +655,70 @@ LIMIT 50;
 
 **Topics:** Next.js · App Router · Middleware · Security
 
-### a) JWT-Based Authentication: Middleware vs. Route Handler
+### a) Cryptographically Secure JWT Authentication: Middleware vs. Route Handler
 
-In Next.js 14 App Router, authentication must be divided between **coarse-grained edge gating** and **fine-grained domain authorization**:
+In Next.js 14 App Router, authentication and authorization must follow a strict defense-in-depth model:
 
 ```
 [Incoming Request]
        │
        ▼
-[Edge Middleware] (middleware.ts)
-  ├─ Is route /api/webhooks/* ? ──► Bypass JWT (Proceed to Webhook Route)
-  ├─ Token present & not expired?
-  │    ├─ No  ──► Return 401 Unauthorized immediately (Saves compute)
-  │    └─ Yes ──► Decode claims, inject headers (x-user-id, x-user-role)
+[Edge Middleware] (frontend/middleware.ts)
+  ├─ Is route /api/webhooks/* or /api/auth/login ? ──► Bypass JWT
+  ├─ Has Authorization: Bearer <token>?
+  │    ├─ No  ──► Return 401 Unauthorized (Missing token)
+  │    └─ Yes ──► Cryptographic Verification via jose.jwtVerify(token, secret)
+  │                 ├─ Invalid signature / tampered payload? ──► Return 401 Unauthorized
+  │                 ├─ Expired token (exp < now)?          ──► Return 401 Unauthorized
+  │                 └─ Valid signature & claims             ──► Inject verified headers:
+  │                                                             x-user-id, x-user-role, x-user-email
   ▼
-[Route Handler] (app/api/orders/route.ts)
-  ├─ Cryptographic verification (if sensitive payload)
-  ├─ Fine-grained RBAC & Object Ownership (user_id == resource.user_id)
-  └─ Database access & business logic
+[Route Handler] (frontend/app/api/orders/route.ts)
+  ├─ Read verified identity headers from request
+  ├─ Server-Side Authorization:
+  │    ├─ Role Check (e.g., admin vs. customer)
+  │    └─ Object-Level Ownership: Does x-user-id own the target order? (Prevents IDOR)
+  └─ Execute business logic & database transaction
 ```
 
-#### 1. Middleware Responsibilities:
-- Runs on the Edge runtime before route execution.
-- Checks for `Authorization: Bearer <token>` or HTTP-only session cookies.
-- Performs fast signature and expiry validation using lightweight libraries (`jose` or Web Crypto API).
-- Bypasses public routes (`/api/auth/login`) and external webhook routes (`/api/webhooks/*`).
-- Injects verified claims as custom request headers (`x-user-id`, `x-user-role`) for downstream handlers.
+#### 1. The Critical Distinction: Authentication vs. Authorization
+- **Authentication (AuthN — "Who are you?"):**  
+  Proving user identity cryptographically. **Never trust client-provided tokens by merely splitting base64 strings (`token.split('.')[1]`) or using unverified `JSON.parse()`.** Anyone can craft a base64 payload containing `{"role": "admin"}`. In our implementation, Next.js Edge Middleware and Python backend both verify the HMAC-SHA256 signature using `JWT_SECRET` before reading any claims. If the signature does not match or the token is expired, the request is rejected immediately with `401 Unauthorized`.
+- **Authorization (AuthZ — "What are you permitted to do?"):**  
+  Checking permissions against the target resource. Middleware only handles identity verification. **Fine-grained authorization must occur in the backend / route handler**, where database queries verify whether `x-user-id` actually owns the resource being modified (mitigating Insecure Direct Object References — IDOR).
 
-#### 2. Route Handler Responsibilities:
-- Enforces **domain-level authorization and object ownership (preventing IDOR - Insecure Direct Object References)**. For example, verifying whether `x-user-id` actually owns the `order_id` being updated.
-- Accesses Node.js database drivers and ORMs (Prisma, Drizzle, `pg`), which cannot run cleanly in Edge middleware.
+#### 2. Implementation in Next.js (Edge Runtime with `jose`):
+```typescript
+// frontend/lib/auth.ts
+import { jwtVerify } from 'jose';
 
-#### 3. Webhook Handling:
-- External callers (e.g. WhatsApp Cloud API, Stripe) **do not send JWT bearer tokens**. They send an HMAC signature in headers (e.g. `X-Hub-Signature-256`).
-- Middleware explicitly skips JWT checks on `/api/webhooks/*`. The route handler validates the raw body against the shared secret using `crypto.subtle.sign('HMAC', ...)`.
+export async function verifyJwtToken(token: string): Promise<AuthUser | null> {
+  try {
+    const secretKey = new TextEncoder().encode(getJwtSecret());
+    const { payload } = await jwtVerify(token, secretKey, {
+      algorithms: ['HS256'],
+    });
 
-*Implementation: [`frontend/middleware.ts`](file:///d:/DOKUMEN%20AHF/Programmer%20%28NextJS%20&%20Python%29/frontend/middleware.ts) | Webhook Route: [`frontend/app/api/webhooks/route.ts`](file:///d:/DOKUMEN%20AHF/Programmer%20%28NextJS%20&%20Python%29/frontend/app/api/webhooks/route.ts).*
+    if (!payload.sub || typeof payload.sub !== 'string') return null;
+
+    return {
+      id: payload.sub,
+      email: (payload.email as string) || '',
+      role: (payload.role as string) || 'user',
+      name: (payload.name as string) || '',
+    };
+  } catch {
+    // Rejects expired tokens, invalid signatures, and tampered payloads
+    return null;
+  }
+}
+```
+
+#### 3. Webhook Handling Exception:
+- External services (e.g. WhatsApp Cloud API, Stripe) **do not send JWT bearer tokens**. They send an HMAC signature in headers (`X-Hub-Signature-256`).
+- Middleware explicitly bypasses JWT checks for `/api/webhooks/*`. The route handler verifies the raw payload body against `WEBHOOK_SECRET` using standard HMAC-SHA256 before processing.
+
+*Implementation: [`frontend/middleware.ts`](file:///d:/DOKUMEN%20AHF/Programmer%20%28NextJS%20&%20Python%29/frontend/middleware.ts) | Verification tests: [`frontend/scripts/test-auth.mjs`](file:///d:/DOKUMEN%20AHF/Programmer%20%28NextJS%20&%20Python%29/frontend/scripts/test-auth.mjs) and [`backend/tests/test_jwt_security.py`](file:///d:/DOKUMEN%20AHF/Programmer%20%28NextJS%20&%20Python%29/backend/tests/test_jwt_security.py).*
 
 ---
 
@@ -1020,26 +1052,82 @@ jobs:
 
 # Verification & Test Results
 
-The backend Python implementation was verified by executing the automated test suite directly:
+### 1. Backend Verification (pytest)
+
+The backend Python implementation was verified by executing the comprehensive automated test suite directly in the virtual environment:
 
 ```
 Platform: Windows (Python 3.13.7, pytest 9.1.1)
-Command: .venv\Scripts\pytest -v
+Command: pytest -v
 
 Results:
-tests/test_error_and_security.py::test_standardized_validation_error_format PASSED      [ 7%]
-tests/test_error_and_security.py::test_standardized_not_found_error_format PASSED       [15%]
-tests/test_error_and_security.py::test_hmac_webhook_verification_success_and_tampering PASSED [23%]
-tests/test_error_and_security.py::test_rate_limiter_exceeded PASSED                    [30%]
-tests/test_idempotency_and_tasks.py::test_idempotent_order_submission_prevents_duplicate_runs PASSED [38%]
-tests/test_idempotency_and_tasks.py::test_concurrent_idempotency_request_conflict PASSED [46%]
-tests/test_idempotency_and_tasks.py::test_async_task_progress_lifecycle[asyncio] PASSED [53%]
-tests/test_order_extractor.py::test_order_intent_and_entity_extraction PASSED          [61%]
-tests/test_order_extractor.py::test_indonesian_unit_normalization PASSED               [69%]
-tests/test_order_extractor.py::test_inquiry_intent_detection PASSED                    [76%]
-tests/test_order_extractor.py::test_complaint_intent_detection PASSED                  [84%]
-tests/test_order_extractor.py::test_prompt_builder_structure PASSED                    [92%]
-tests/test_order_extractor.py::test_evaluator_metrics_calculation PASSED               [100%]
+tests/test_cloud_tasks_worker.py::test_cloud_task_worker_execution PASSED                 [  4%]
+tests/test_cloud_tasks_worker.py::test_cloud_task_worker_terminal_failure_dlq PASSED       [  9%]
+tests/test_error_and_security.py::test_standardized_validation_error_format PASSED        [ 14%]
+tests/test_error_and_security.py::test_standardized_not_found_error_format PASSED         [ 19%]
+tests/test_error_and_security.py::test_hmac_webhook_verification_success_and_tampering PASSED [ 23%]
+tests/test_error_and_security.py::test_rate_limiter_exceeded PASSED                      [ 28%]
+tests/test_idempotency_and_tasks.py::test_idempotent_order_submission_prevents_duplicate_runs PASSED [ 33%]
+tests/test_idempotency_and_tasks.py::test_concurrent_idempotency_request_conflict PASSED [ 38%]
+tests/test_idempotency_and_tasks.py::test_async_task_progress_lifecycle[asyncio] PASSED   [ 42%]
+tests/test_jwt_security.py::test_create_and_verify_valid_jwt PASSED                       [ 47%]
+tests/test_jwt_security.py::test_expired_jwt_rejected PASSED                              [ 52%]
+tests/test_jwt_security.py::test_malformed_jwt_rejected PASSED                            [ 57%]
+tests/test_jwt_security.py::test_tampered_payload_jwt_rejected PASSED                     [ 61%]
+tests/test_jwt_security.py::test_invalid_signature_jwt_rejected PASSED                    [ 66%]
+tests/test_jwt_security.py::test_api_route_with_valid_and_invalid_jwt PASSED               [ 71%]
+tests/test_order_extractor.py::test_order_intent_and_entity_extraction PASSED            [ 76%]
+tests/test_order_extractor.py::test_indonesian_unit_normalization PASSED                 [ 80%]
+tests/test_order_extractor.py::test_inquiry_intent_detection PASSED                      [ 85%]
+tests/test_order_extractor.py::test_complaint_intent_detection PASSED                    [ 90%]
+tests/test_order_extractor.py::test_prompt_builder_structure PASSED                      [ 95%]
+tests/test_order_extractor.py::test_evaluator_metrics_calculation PASSED                 [100%]
 
-======================= 13 passed in 1.53s =======================
+======================= 21 passed in 1.48s =======================
 ```
+
+### 2. Frontend Verification (Next.js 14 App Router)
+
+The frontend project was verified through complete static analysis, security tests, and production compilation:
+
+```
+Platform: Windows (Node.js v22.18.0, npm 11.6.0, Next.js 14.2.35)
+
+1. Dependency Integrity:
+   npm ci
+   Result: added 338 packages in 12s, audited 339 packages (0 vulnerabilities)
+
+2. TypeScript Typecheck:
+   npm run typecheck (tsc --noEmit)
+   Result: Exit code 0 (Zero type errors)
+
+3. ESLint:
+   npm run lint (next lint)
+   Result: Exit code 0 (Zero lint errors)
+
+4. Cryptographic JWT Verification Test Suite:
+   npm run test (node scripts/test-auth.mjs)
+   Result:
+   [TEST 1] Valid JWT verification: PASSED (Decoded user ID: usr_test_001)
+   [TEST 2] Tampered payload rejection: PASSED (Successfully rejected)
+   [TEST 3] Invalid signature rejection: PASSED (Successfully rejected)
+   [TEST 4] Expired token rejection: PASSED (Successfully rejected)
+   [TEST 5] Missing token rejection: PASSED (Successfully rejected)
+   Summary: 5/5 auth tests passed.
+
+5. Production Build:
+   npm run build (next build)
+   Result:
+   Route (app)                              Size     First Load JS
+   ┌ ○ /                                    137 B          87.3 kB
+   ├ ○ /_not-found                          871 B          88.1 kB
+   ├ λ /api/orders                          0 B                0 B
+   ├ λ /api/webhooks                        0 B                0 B
+   └ ○ /dashboard                           137 B          87.3 kB
+   + First Load JS shared by all            87.2 kB
+   ○  (Static)   prerendered as static content
+   λ  (Dynamic)  server-rendered on demand via Edge runtime
+   Build output: Next.js production build completed successfully.
+```
+
+---
