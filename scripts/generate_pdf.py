@@ -264,9 +264,13 @@ def sanitize_ascii_art(text):
         '◄': '<',
         '▼': 'v',
         '▲': '^',
+        '↓': 'v',
+        '↑': '^',
         '→': '->',
         '←': '<-',
         '↔': '<->',
+        '—': '-',
+        '–': '-',
         '•': '*',
         '·': '*'
     }
@@ -524,35 +528,36 @@ def build_pdf():
         # Major Section Headings
         if s_line.startswith("# Part B") or s_line.startswith("# Verification"):
             story.append(PageBreak())
-            h_text = s_line.lstrip('#').strip()
+            h_text = format_markdown_inline(s_line.lstrip('#').strip())
             story.append(Paragraph(h_text, styles['H1']))
             story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor("#2563EB"), spaceBefore=2, spaceAfter=10))
             continue
             
         if s_line.startswith("# Part A"):
             # No extra PageBreak, starts directly on page after TOC
-            h_text = s_line.lstrip('#').strip()
+            h_text = format_markdown_inline(s_line.lstrip('#').strip())
             story.append(Paragraph(h_text, styles['H1']))
             story.append(HRFlowable(width="100%", thickness=1.5, color=colors.HexColor("#2563EB"), spaceBefore=2, spaceAfter=10))
             continue
             
         if s_line.startswith("## "):
             # Sub-question heading (P1, P2, Q1, Q2, etc.)
-            h_text = s_line.lstrip('#').strip()
+            raw_h = s_line.lstrip('#').strip()
             # Give a page break before major Q questions to ensure clean layout
-            if re.match(r'^Q[1-7]\b', h_text):
+            if re.match(r'^Q[1-7]\b', raw_h):
                 story.append(PageBreak())
+            h_text = format_markdown_inline(raw_h)
             story.append(Paragraph(h_text, styles['H1']))
             story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#CBD5E1"), spaceBefore=2, spaceAfter=8))
             continue
             
         if s_line.startswith("### "):
-            h_text = s_line.lstrip('#').strip()
+            h_text = format_markdown_inline(s_line.lstrip('#').strip())
             story.append(Paragraph(h_text, styles['H2']))
             continue
             
         if s_line.startswith("#### "):
-            h_text = s_line.lstrip('#').strip()
+            h_text = format_markdown_inline(s_line.lstrip('#').strip())
             story.append(Paragraph(h_text, styles['H3']))
             continue
             
