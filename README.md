@@ -114,7 +114,7 @@ It includes:
 │   │   ├── errors.ts                       # Standardized API response format
 │   │   └── rate-limit.ts                   # In-memory sliding window rate limiter
 │   └── scripts/
-│       └── test-auth.mjs                   # Automated auth and signature verification test
+│       └── test-auth.ts                    # Automated auth and signature verification test
 │
 ├── .github/
 │   └── workflows/
@@ -321,7 +321,7 @@ npm run build
 
 ## Assumptions
 
-- **LLM Runtime:** Gemma 3 (4B for local prototyping / smaller instances, or 12B for high-throughput GPU serving) is intended for deployment via vLLM or Ollama. The local test suite uses a deterministic rule-based extractor to guarantee 100% reproducible testing without requiring an active GPU daemon.
+- **LLM Runtime:** Gemma 3 (4B for local prototyping / smaller instances, or 12B for high-throughput GPU serving) is intended for deployment via vLLM or Ollama. The local test suite uses a deterministic rule-based extractor to guarantee fully reproducible testing without requiring an active GPU daemon.
 - **Single-Instance Caching:** The rate limiting and idempotency stores are implemented using thread-safe in-memory stores suitable for single-instance review. For multi-container production deployments, these components swap to Upstash Redis or Redis Cluster without changing public interface signatures.
 
 ---

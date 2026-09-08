@@ -29,7 +29,9 @@ export async function verifyJwtToken(token: string, secretKey: string): Promise<
   const secret = new TextEncoder().encode(secretKey);
   
   // Real cryptographic signature and claims verification
-  const { payload } = await jwtVerify(token, secret);
+  const { payload } = await jwtVerify(token, secret, {
+    algorithms: ['HS256'],
+  });
 
   return {
     userId: String(payload.sub || payload.userId || ''),

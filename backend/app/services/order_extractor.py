@@ -71,7 +71,7 @@ FEW_SHOT_EXAMPLES = [
             "confidence": 0.95,
             "requires_clarification": False,
             "clarification_prompt": None,
-            "natural_reply": "Halo! Semen Tiga Roda 50kg saat ini Rp 68.000/sak. Untuk pembelian di atas 50 sak kami ada potongan harga khusus. Ada yang bisa kami bantu hitungkan kebutuhannya?"
+            "natural_reply": "Halo! Saya akan meneruskan permintaan Anda untuk memeriksa harga resmi dan ketersediaan stok Semen Tiga Roda 50kg ke katalog kami. Ada hal lain yang bisa kami bantu?"
         }
     },
     {
@@ -103,7 +103,7 @@ class WhatsAppOrderExtractor:
     Enforces Pydantic validation on the JSON output.
     """
 
-    def __init__(self, ollama_url: str = "http://localhost:11434", model_name: str = "gemma3:8b"):
+    def __init__(self, ollama_url: str = "http://localhost:11434", model_name: str = "gemma3:4b"):
         self.ollama_url = ollama_url
         self.model_name = model_name
 

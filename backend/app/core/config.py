@@ -36,7 +36,7 @@ class Settings(BaseModel):
         default_factory=lambda: os.getenv("OLLAMA_URL", "http://localhost:11434")
     )
     llm_model: str = Field(
-        default_factory=lambda: os.getenv("LLM_MODEL", "gemma3:8b")
+        default_factory=lambda: os.getenv("LLM_MODEL", "gemma3:4b")
     )
 
 

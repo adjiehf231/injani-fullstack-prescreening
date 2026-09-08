@@ -45,7 +45,7 @@ class NumberedCanvas(canvas.Canvas):
         self.setFillColor(colors.HexColor("#64748B"))
 
         # Running Header
-        self.drawString(54, 842 - 36, "PT Injani Systems — Fullstack Developer Prescreening")
+        self.drawString(54, 842 - 36, "PT Injani Systems - Fullstack Developer Prescreening")
         self.drawRightString(595 - 54, 842 - 36, "Programmer (NextJS & Python)")
         self.setStrokeColor(colors.HexColor("#E2E8F0"))
         self.setLineWidth(0.75)
@@ -214,6 +214,8 @@ def get_styles():
 
 def format_markdown_inline(text):
     """Inline markdown formatter converting bold, italics, code, and linebreaks for ReportLab Paragraphs."""
+    # Normalize typography to clean standard ASCII (prevents broken glyphs in PDF engines)
+    text = text.replace('—', ' - ').replace('–', '-').replace('’', "'").replace('‘', "'").replace('“', '"').replace('”', '"')
     # Convert <br> variants to placeholder
     text = re.sub(r'<br\s*/?>', '__BR_TAG__', text, flags=re.IGNORECASE)
     # Escape XML chars
@@ -293,7 +295,7 @@ def build_pdf():
     story.append(Spacer(1, 40))
     story.append(Paragraph("PT Injani Systems", styles['CoverSuper']))
     story.append(Paragraph("Fullstack Developer Prescreening Questions", styles['CoverTitle']))
-    story.append(Paragraph("Technical Assessment Report — Programmer (NextJS & Python)", styles['CoverSubtitle']))
+    story.append(Paragraph("Technical Assessment Report - Programmer (NextJS & Python)", styles['CoverSubtitle']))
     
     story.append(HRFlowable(width="100%", thickness=2, color=colors.HexColor("#2563EB"), spaceBefore=0, spaceAfter=25))
     
@@ -303,9 +305,9 @@ def build_pdf():
         [Paragraph("<b>Hiring Organization</b>", styles['TableCell']), Paragraph("PT Injani Systems", styles['TableCellBold'])],
         [Paragraph("<b>Submission Date</b>", styles['TableCell']), Paragraph("September 2026", styles['TableCellBold'])],
         [Paragraph("<b>Repository</b>", styles['TableCell']), Paragraph("github.com/adjiehf231/injani-fullstack-prescreening", styles['TableCellBold'])],
-        [Paragraph("<b>Backend Test Status</b>", styles['TableCell']), Paragraph("pytest — 23/23 Automated Tests Passed (100%)", styles['TableCellBold'])],
-        [Paragraph("<b>Frontend Auth Tests</b>", styles['TableCell']), Paragraph("tsx — 8/8 Strict Cryptographic Tests Passed", styles['TableCellBold'])],
-        [Paragraph("<b>Frontend Build Status</b>", styles['TableCell']), Paragraph("Next.js 14 App Router — Typecheck, Lint & Build Passed", styles['TableCellBold'])],
+        [Paragraph("<b>Backend Test Status</b>", styles['TableCell']), Paragraph("pytest - 23/23 Automated Tests Passed (All Passed)", styles['TableCellBold'])],
+        [Paragraph("<b>Frontend Auth Tests</b>", styles['TableCell']), Paragraph("tsx - 8/8 Strict Cryptographic Tests Passed", styles['TableCellBold'])],
+        [Paragraph("<b>Frontend Build Status</b>", styles['TableCell']), Paragraph("Next.js 14 App Router - Typecheck, Lint & Build Passed", styles['TableCellBold'])],
         [Paragraph("<b>Security Verification</b>", styles['TableCell']), Paragraph("Cryptographic JWT Verification (jose) & HMAC Webhooks", styles['TableCellBold'])],
     ]
     t_meta = Table(meta_data, colWidths=[150, 337])
@@ -326,7 +328,7 @@ def build_pdf():
     summary_html = (
         "<b>Assessment Overview:</b><br/>"
         "This engineering report contains verified technical solutions for PT Injani Systems prescreening assessment. "
-        "It provides rigorous, production-grade answers for candidate personal profile (P1–P5) and 7 comprehensive "
+        "It provides rigorous, production-grade answers for candidate personal profile (P1-P5) and 7 comprehensive "
         "technical challenges spanning self-hosted Gemma 3 LLM order extraction, PostgreSQL 16 SLA analytics, "
         "Google Cloud Tasks monitoring, composite index optimization for keyset pagination, Next.js 14 edge JWT "
         "cryptographic verification, Python asyncio background job idempotency, and fullstack CI/CD cloud deployment."
@@ -352,13 +354,13 @@ def build_pdf():
     
     toc_data = [
         [Paragraph("<b>Section</b>", styles['TableHeader']), Paragraph("<b>Topic / Question</b>", styles['TableHeader']), Paragraph("<b>Domain</b>", styles['TableHeader'])],
-        [Paragraph("<b>Part A</b>", styles['TableCell']), Paragraph("<b>Candidate Profile (P1–P5)</b>", styles['TableCellBold']), Paragraph("Work Style, Startup Fit, Aspirations", styles['TableCell'])],
+        [Paragraph("<b>Part A</b>", styles['TableCell']), Paragraph("<b>Candidate Profile (P1-P5)</b>", styles['TableCellBold']), Paragraph("Work Style, Startup Fit, Aspirations", styles['TableCell'])],
         [Paragraph("P1", styles['TableCell']), Paragraph("Work Style & Independence (Autonomous Discovery)", styles['TableCell']), Paragraph("Engineering Workflow", styles['TableCell'])],
         [Paragraph("P2", styles['TableCell']), Paragraph("Startup Environment Fit & Fullstack Ownership", styles['TableCell']), Paragraph("Team Culture & Velocity", styles['TableCell'])],
-        [Paragraph("P3", styles['TableCell']), Paragraph("2–3 Year Engineering Aspirations", styles['TableCell']), Paragraph("Career Growth & Architecture", styles['TableCell'])],
+        [Paragraph("P3", styles['TableCell']), Paragraph("2-3 Year Engineering Aspirations", styles['TableCell']), Paragraph("Career Growth & Architecture", styles['TableCell'])],
         [Paragraph("P4", styles['TableCell']), Paragraph("Motivation for PT Injani Systems Role", styles['TableCell']), Paragraph("Fullstack & Cloud Scope", styles['TableCell'])],
         [Paragraph("P5", styles['TableCell']), Paragraph("Expected Monthly Salary", styles['TableCell']), Paragraph("Compensation", styles['TableCell'])],
-        [Paragraph("<b>Part B</b>", styles['TableCell']), Paragraph("<b>Technical Challenges (Q1–Q7)</b>", styles['TableCellBold']), Paragraph("Next.js, Python, PostgreSQL, Cloud", styles['TableCell'])],
+        [Paragraph("<b>Part B</b>", styles['TableCell']), Paragraph("<b>Technical Challenges (Q1-Q7)</b>", styles['TableCellBold']), Paragraph("Next.js, Python, PostgreSQL, Cloud", styles['TableCell'])],
         [Paragraph("Q1", styles['TableCell']), Paragraph("AI-Powered WhatsApp Order Processing (Gemma 3 / Ollama)", styles['TableCell']), Paragraph("AI/ML, Intent Extraction", styles['TableCell'])],
         [Paragraph("Q2", styles['TableCell']), Paragraph("SLA Analytics Dashboard (PostgreSQL Generated Columns & Next.js)", styles['TableCell']), Paragraph("PostgreSQL, Next.js RSC", styles['TableCell'])],
         [Paragraph("Q3", styles['TableCell']), Paragraph("Testing & Monitoring Google Cloud Tasks Workflows", styles['TableCell']), Paragraph("Cloud Tasks, Logging, DLQ", styles['TableCell'])],

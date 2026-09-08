@@ -9,7 +9,8 @@
  *    - Injects verified claims (x-user-id, x-user-role, x-user-dept) into request headers.
  *    - Fails closed: Rejects invalid or forged tokens immediately with 401 Unauthorized.
  * 2. Route Handler:
- *    - Enforces domain authorization, resource ownership (IDOR checks), and database access.
+ *    - Enforces domain authorization where required.
+ *    - Object-level ownership validation is a production consideration.
  */
 
 import { NextResponse } from 'next/server';
@@ -77,7 +78,9 @@ export async function middleware(request: NextRequest) {
 
   try {
     const secret = new TextEncoder().encode(jwtSecret);
-    const { payload } = await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, secret, {
+      algorithms: ['HS256'],
+    });
 
     // Forward verified claims downstream via request headers
     const requestHeaders = new Headers(request.headers);

@@ -15,19 +15,19 @@
 > Describe how you typically work when given a task with minimal direction. Do you prefer to figure things out independently, or do you seek regular check-ins and guidance? Give a specific example from a past role.
 
 ### Answer
-When handed a task with minimal direction or ambiguous scope, I employ a **timeboxed autonomous discovery pattern** followed by an alignment checkpoint:
+When given a task with minimal direction or ambiguous scope, I follow a timeboxed autonomous discovery process followed by an alignment checkpoint:
 
 1. **Understand & Contextualize (First 1–2 hours):**  
-   Rather than immediately asking for clarification or writing code, I inspect the codebase, existing API schemas, database migrations, and domain models to understand the system context. I identify constraints, data contracts, and edge cases.
+   Rather than immediately asking for clarification or jumping into code, I inspect the existing system context—examining database schemas, API schemas, data models, and edge cases to clarify constraints and requirements.
 2. **Formulate Technical Options & Trade-offs:**  
-   I document 1–2 viable implementation approaches, noting trade-offs (complexity, performance, maintainability) and my recommended path.
+   I outline 1–2 practical implementation approaches, noting trade-offs (complexity, maintainability, performance) and my recommended path.
 3. **Structured Alignment Check-in:**  
-   I present a concise proposal to the Lead Engineer or Product Manager:  
-   *"Here is my interpretation of the requirement, the proposed schema/API contract, and the trade-offs. If this aligns with expectations, I will proceed to implementation."*
+   I present a concise summary to the Lead Engineer or Product Owner:  
+   *"Here is my understanding of the requirement, the proposed schema/API contract, and the trade-offs. If this aligns with expectations, I will proceed to implementation."*
 4. **Execution with Incremental Visibility:**  
-   Once aligned, I work independently with high velocity, breaking the task into small, testable commits. I only escalate blockers when an external dependency is unavailable or an unresolvable business rule emerges.
+   Once aligned, I work independently with high velocity, breaking the task into small, testable commits and validating edge cases with automated tests. I only escalate blockers when an external dependency is unavailable or an unresolvable business ambiguity arises.
 
-Sebagai contoh konkret: saat dipercaya membangun modul sinkronisasi pesanan multi-kanal dan pembaruan stok tanpa dokumen spesifikasi formal yang lengkap, saya memulai dengan menelaah skema database yang ada dan memetakan status transaksi. Saya merancang endpoint ber-idempotensi (`Idempotency-Key`) dan task worker asinkron untuk menjamin konsistensi saat terjadi retry jaringan. Sebelum menulis kode implementasi, saya melakukan sesi penyelarasan 15 menit dengan Technical Lead untuk menyepakati kontrak payload dan strategi retry. Implementasi selesai dalam 4 hari kerja, dilengkapi unit test untuk skenario kegagalan, dan langsung siap diuji tanpa rework arsitektur.
+For example, in a previous role handling data validation and reporting workflows where specifications were incomplete, I analyzed the underlying database schemas and cross-referenced calculation outputs against historical records. I documented edge cases (such as null values and boundary conditions), proposed standardized validation rules, and reviewed the approach with the engineering lead in a brief 15-minute checkpoint. After securing alignment, I implemented the validation logic and automated test coverage, delivering a reliable solution without rework or ongoing supervision.
 
 ---
 
@@ -37,13 +37,13 @@ Sebagai contoh konkret: saat dipercaya membangun modul sinkronisasi pesanan mult
 > Have you worked in a startup or small team before? If yes, describe what that looked like — team size, your responsibilities, and how the pace/culture differed from larger organizations. If no, what makes you interested in joining one now?
 
 ### Answer
-In a startup or high-growth engineering team, success hinges on **high technical ownership, cross-functional pragmatism, and direct communication**:
+I am strongly drawn to small, high-growth engineering teams where developers take direct ownership of their work and collaborate closely across disciplines:
 
-- **End-to-End Ownership:** Rather than operating in isolated silos, a fullstack engineer in a small team owns the complete lifecycle—from PostgreSQL schema design and API contracts to frontend user experience, automated testing, and CI/CD deployment.
-- **Bias for Action over Bureaucracy:** Speed to production matters, but speed without quality creates paralyzing technical debt. Senior discipline means building the simplest correct solution (KISS/YAGNI) that is safe and extensible, rather than overengineering speculative layers.
-- **Direct Feedback Loop:** Working closely with product managers and business stakeholders provides immediate feedback on what drives actual customer and operational impact.
+- **End-to-End Responsibility:** In a focused team, an engineer is not confined to a narrow silo. Having direct involvement across the full cycle—from requirements analysis and database queries to frontend interfaces and automated tests—creates deeper technical accountability and better software.
+- **Pragmatism & Clean Solutions:** Speed is essential, but speed without quality creates technical debt. I value building the simplest correct solution (KISS and YAGNI) that is safe, testable, and maintainable, avoiding unnecessary layers of speculative complexity.
+- **Tight Feedback Loops:** Working directly with product and operational stakeholders provides rapid feedback on how features perform in practice and what creates real business value.
 
-Saya terbiasa bekerja dalam tim beranggotakan 4–8 orang di mana setiap pengembang memegang tanggung jawab penuh atas modul yang ditangani: perancangan frontend Next.js, pembuatan backend REST API dengan Python, pemodelan database relasional, hingga deployment container. Berbeda dengan organisasi besar yang memiliki siklus persetujuan bertingkat, di tim kecil kami berfokus pada siklus rilis mingguan yang terukur, komunikasi asinkron yang disiplin via Git dan Slack, serta pengujian otomatis untuk menjaga keandalan sistem tanpa memperlambat inovasi bisnis.
+My background across application support, QA testing, requirements analysis, and software development has given me a comprehensive perspective on the software lifecycle: from understanding how operational teams interact with the system to verifying data integrity in SQL and diagnosing failure modes early. I am excited to join PT Injani Systems because a small, collaborative team offers the opportunity to contribute directly across the modern Next.js and Python stack, move fast with disciplined testing, and see the tangible impact of the solutions we build.
 
 ---
 
@@ -53,11 +53,11 @@ Saya terbiasa bekerja dalam tim beranggotakan 4–8 orang di mana setiap pengemb
 > Where do you see yourself in 2–3 years? What kind of work, responsibilities, or impact are you working toward?
 
 ### Answer
-Dalam 2–3 tahun ke depan, saya melihat diri saya bertumbuh sebagai **Senior Fullstack Engineer / Technical Lead** yang menguasai arsitektur platform web modern dan sistem backend terdistribusi:
+Over the next 2–3 years, I see myself growing into a strong, dependable **Senior Fullstack Developer / Technical Contributor** who designs and maintains reliable web applications and backend systems:
 
-- **Technical Impact:** Memimpin evolusi arsitektur sistem inti (Next.js App Router, microservices/API Python, optimasi query PostgreSQL, dan integrasi AI/LLM praktis), memastikan platform dapat diskalakan secara andal dengan latensi rendah dan ketersediaan tinggi.
-- **Engineering Quality & Standards:** Membimbing rekan pengembang, melakukan code review yang konstruktif, serta menetapkan praktik rekayasa yang disiplin (automated testing, CI/CD pipeline yang aman, observabilitas sistem, dan defensive security).
-- **Business Alignment:** Berkolaborasi erat dengan tim produk dan pemangku kepentingan bisnis untuk menerjemahkan kebutuhan operasional menjadi solusi teknis yang pragmatis, efisien dari sisi biaya infrastruktur, dan berdampak langsung pada produktivitas perusahaan.
+- **Technical Mastery:** Deepening my expertise across modern Next.js (React Server Components, server-side data fetching, responsive UI), Python backend architectures (FastAPI, async task processing, REST APIs), and PostgreSQL performance engineering (indexing, query tuning, and schema design).
+- **Software Quality & Craftsmanship:** Championing disciplined engineering standards—including comprehensive automated testing, constructive code reviews, defensive security practices, and reliable CI/CD automation.
+- **Business Impact & Collaboration:** Working closely with product managers and operational stakeholders to translate complex business workflows into maintainable, performant software that directly improves company productivity and customer satisfaction.
 
 ---
 
@@ -67,11 +67,11 @@ Dalam 2–3 tahun ke depan, saya melihat diri saya bertumbuh sebagai **Senior Fu
 > What is prompting you to look for a new opportunity right now? What are you specifically looking for in your next position that you are not getting in your current or most recent role?
 
 ### Answer
-Motivasi saya melamar ke PT Injani Systems adalah mencari **lingkup kepemilikan arsitektural yang lebih luas dan tantangan teknis yang lebih dalam** pada irisan teknologi frontend modern (Next.js), backend berkinerja tinggi (Python), dan infrastruktur cloud:
+What prompts me to seek a new opportunity is the desire for **expanded hands-on engineering scope** focused on building production software with Next.js, Python, and PostgreSQL:
 
-- **Deeper Fullstack Scope:** Saya mencari lingkungan kerja di mana saya dapat berkontribusi langsung pada pengalaman pengguna (memanfaatkan React Server Components, layout responsif, dan dashboard analitik pada Next.js 14) sekaligus merekayasa sistem backend inti (Python async task workers, optimasi database relasional, dan arsitektur event-driven).
-- **High-Impact Business Solutions:** PT Injani Systems mengembangkan sistem bisnis dan alur kerja operasional yang krusial, di mana kualitas arsitektur perangkat lunak berdampak langsung terhadap keandalan operasional dan skalabilitas bisnis pelanggan.
-- **Continuous Learning & Engineering Maturity:** Saya ingin bekerja bersama tim yang menghargai kode bersih, arsitektur pragmatis, dan kesiapan produksi yang teruji, bukan sekadar kompromi jangka pendek yang menumpuk utang teknis.
+- **Deeper Fullstack Development Scope:** While my experience in application support, QA testing, and requirements analysis gave me strong fundamentals in troubleshooting, data analysis, and system behavior, I want to direct my daily focus to core software engineering—building modern user interfaces with Next.js and architecting performant Python backend services.
+- **Core Business Workflow Engineering:** PT Injani Systems builds mission-critical business systems and operational workflows, where software quality, reliability, and data accuracy directly impact day-to-day operations.
+- **Engineering Culture:** I want to work within a team that values clean code, pragmatic architecture, automated testing, and long-term maintainability rather than quick shortcuts that accumulate technical debt.
 
 ---
 
@@ -81,9 +81,7 @@ Motivasi saya melamar ke PT Injani Systems adalah mencari **lingkup kepemilikan 
 > What is your expected gross monthly salary?
 
 ### Answer
-Ekspektasi gaji bulanan gross saya berada pada rentang **Rp 12.000.000 – Rp 16.000.000**.
-
-Angka ini bersifat terbuka dan fleksibel untuk didiskusikan lebih lanjut dengan tim rekrutmen PT Injani Systems, dengan mempertimbangkan keseluruhan paket remunerasi dan benefit, skema kerja, serta ruang lingkup tanggung jawab dan kontribusi teknis yang diharapkan.
+My expected compensation is negotiable and I am open to discussing a package that reflects the responsibilities, technical scope, working arrangement, and overall benefits of the role.
 
 ---
 
@@ -205,7 +203,7 @@ JSON Output:
   "confidence": 0.95,
   "requires_clarification": false,
   "clarification_prompt": null,
-  "natural_reply": "Halo! Semen Tiga Roda 50kg saat ini Rp 68.000/sak. Untuk pembelian di atas 50 sak kami ada potongan harga khusus. Ada yang bisa kami bantu hitungkan kebutuhannya?"
+  "natural_reply": "Halo! Saya akan meneruskan permintaan Anda untuk memeriksa harga resmi dan ketersediaan stok Semen Tiga Roda 50kg ke katalog kami. Ada hal lain yang bisa kami bantu?"
 }
 
 Customer: "Barang pesanan saya kemarin kenapa belum sampai ya? Padahal janjinya pagi ini."
@@ -231,9 +229,9 @@ Parse this message: "{message_text}"<end_of_turn>
 ### c) Concrete Evaluation Methodology & Business Data Safety
 
 #### 1. Implemented vs. Proposed Evaluation Flow:
-- **Implemented in Repository:** The repository implements the extraction schema contracts and deterministic fallback rule engine in [`backend/app/services/order_extractor.py`](./backend/app/services/order_extractor.py).
+- **Implemented in Repository:** The repository implements the extraction schema contracts, prompt structure, evaluation framework, and deterministic fallback rule engine in [`backend/app/services/order_extractor.py`](./backend/app/services/order_extractor.py) and [`backend/app/services/evaluator.py`](./backend/app/services/evaluator.py).
 - **Demonstrated in Repository:** An automated evaluation harness in [`backend/app/services/evaluator.py`](./backend/app/services/evaluator.py) is verified via [`backend/tests/test_order_extractor.py`](./backend/tests/test_order_extractor.py), validating slot-matching calculations, precision/recall formulas, and Indonesian unit normalization rules without external runtime dependencies.
-- **Production Consideration:** A local open-weight LLM such as Gemma 3 (`gemma3:4b` or `gemma3:12b`) via Ollama or vLLM can be plugged in behind the same extractor interface. For production qualification prior to live rollout, an annotated evaluation dataset containing at least 500 representative customer conversations would be established to benchmark edge cases: multi-item colloquial Indonesian chats ("sak", "zak", "biji", "kaleng"), ambiguous quantities, typos, and price inquiries.
+- **Production Consideration:** A local open-weight LLM such as Gemma 3 (`gemma3:4b` or `gemma3:12b`) can be connected through the same interface using Ollama or vLLM for further evaluation. For production qualification prior to live rollout, an annotated evaluation dataset containing representative customer conversations would be established to benchmark edge cases: multi-item colloquial Indonesian chats ("sak", "zak", "biji", "kaleng"), ambiguous quantities, typos, and price inquiries.
 
 #### 2. Evaluation Metrics Tracked:
 
@@ -243,15 +241,29 @@ Parse this message: "{message_text}"<end_of_turn>
 | **Entity Precision** | $\frac{\text{True Positive Extracted Items}}{\text{Total Extracted Items}}$ | $\ge 95.0\%$ | Penalizes hallucinated items or ghost quantities. |
 | **Entity Recall** | $\frac{\text{True Positive Extracted Items}}{\text{Total Ground Truth Items}}$ | $\ge 94.0\%$ | Measures ability to capture all items mentioned by the customer. |
 | **Entity F1-Score** | $2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$ | $\ge 94.5\%$ | Harmonic mean of precision and recall on slots `(item, qty, unit)`. |
-| **Exact Match (EM)** | $\frac{\text{Fully Identical Extracted Orders}}{\text{Total Order Samples}}$ | $\ge 90.0\%$ | Strict metric: All items, quantities, units, and intent must match 100%. |
+| **Exact Match (EM)** | $\frac{\text{Fully Identical Extracted Orders}}{\text{Total Order Samples}}$ | $\ge 90.0\%$ | Strict metric: All items, quantities, units, and intent must match ground truth exactly. |
 | **JSON Validity Rate** | $\frac{\text{Syntactically Valid JSON}}{\text{Total Generations}}$ | $\ge 99.8\%$ | Verifies constrained decoding compliance. |
 | **P95 Latency Target** | $95^{\text{th}}$ percentile response duration | $< 1,200 \text{ ms}$ | Target response duration for WhatsApp user responsiveness. |
 
-#### 3. Business Data Safety Boundary:
+#### 3. Business Data Safety Boundary & Authoritative Architecture:
+
 An essential engineering principle in commerce LLM integration is: **The LLM must never be the source of truth for business data.**
+
+```text
+User message
+    ↓
+LLM intent / entity extraction
+    ↓
+Product / ERP / PostgreSQL / authoritative API
+    ↓
+Verified price / stock / promotion
+    ↓
+Response to customer
+```
+
 - **Strict Role Separation:** The LLM is used exclusively for *intent classification* and *unstructured text extraction* (identifying product aliases, requested quantities, and units).
-- **Authoritative Data Sources:** Product catalogs, real-time stock levels, current pricing tiers, volume discounts, tax calculations, and final order totals must be retrieved directly from PostgreSQL / ERP business services.
-- **Hallucination Prevention:** The prompt explicitly prohibits the model from generating binding prices or inventing stock availability. If a customer asks "Berapa harga semen?", the LLM classifies the intent as `inquiry` and extracts `item_name: "semen"`. The backend backend service queries the database for active catalog prices and formats the verified response.
+- **Authoritative Data Sources:** Product catalogs, current stock levels, active pricing tiers, volume discounts, tax calculations, and final order totals must be retrieved directly from PostgreSQL / ERP business services.
+- **Hallucination Prevention:** The prompt explicitly prohibits the model from generating binding prices or inventing stock availability. If a customer asks "Berapa harga semen?", the LLM classifies the intent as `inquiry` and extracts `item_name: "semen"`. The backend service queries the database for active catalog prices and formats the verified response.
 
 ---
 
@@ -401,7 +413,9 @@ A business analyst reviewing approval workflows needs to distinguish between **s
 
 ### a) Testing Cloud Tasks Locally Without Deploying to GCP
 
-Deploying to GCP for every iteration destroys feedback loops. We use a **two-tier local development testing strategy**:
+The assessment implementation demonstrates the Cloud Tasks worker contract and request-processing flow in [`backend/app/api/routes.py`](./backend/app/api/routes.py), verified via direct HTTP mock requests in [`backend/tests/test_cloud_tasks_worker.py`](./backend/tests/test_cloud_tasks_worker.py). For production deployment, the worker endpoint should validate the Google-signed OIDC token before processing a task. Live Google OIDC verification is intentionally outside the local reference implementation.
+
+To test and verify scheduled workflows locally without GCP cloud dependencies, we use a **two-tier local development testing strategy**:
 
 #### 1. Mock Header Dispatch via Direct HTTP (Fastest / Unit Level):
 Cloud Tasks delivers tasks by making an HTTP POST request to the target worker containing specific Google headers. We simulate this directly in local integration tests:
@@ -567,11 +581,11 @@ INCLUDE (amount);
 - `status`: Filtered with equality (`= 'SETTLED'`).
 - `created_at DESC, id DESC`: Matches the sorting and keyset pagination cursor `WHERE (created_at, id) < (:last_seen_created_at, :last_seen_id) ORDER BY created_at DESC, id DESC`. Including `id DESC` guarantees deterministic pagination without ties and allows the planner to fulfill the ordering directly from the B-tree index without an in-memory or disk sort node.
 - **`INCLUDE (amount)` (Covering Index):** Keeps `amount` in the leaf pages without bloating non-leaf branch nodes. Because `id`, `user_id`, `status`, and `created_at` are in the index key and `amount` is in the payload, all required projection columns are present within the index.
-- **Expected Planner Behavior:** This index can support an index-only scan when PostgreSQL's visibility conditions and selected columns allow it, reading directly from the index pages and avoiding heap lookups for covered columns. If pages are not yet marked visible in the visibility map, the planner performs an Index Scan with minimal heap lookups.
+- **Expected Planner Behavior:** The index is designed to support this filtering and keyset-pagination access pattern. PostgreSQL may use an index-only scan when the selected columns and visibility-map state permit it, reading directly from the index pages and avoiding heap lookups for covered columns. If pages are not yet marked visible in the visibility map, the planner performs an Index Scan with minimal heap lookups. Actual query execution and buffer I/O impact should always be verified using `EXPLAIN (ANALYZE, BUFFERS)` against representative production-like data.
 
 #### 2. Partial Index (High-Skew Statuses):
-In production transaction systems, typically **95%+ of rows are 'SETTLED'**, while only 2–5% are 'PENDING' or 'FAILED'.  
-If queries predominantly look for active/pending transactions:
+In transactional systems where the vast majority of historical rows are in a final status (such as `SETTLED`), while only a small active fraction are `PENDING`:  
+If queries predominantly search for active/pending transactions:
 
 ```sql
 CREATE INDEX idx_transactions_pending_user_created 
@@ -580,8 +594,8 @@ WHERE status = 'PENDING';
 ```
 
 **Why Partial Index?**
-- **Size reduction:** Because the partial index indexes only the small subset of non-settled rows, its physical footprint is a tiny fraction of the full table index, ensuring it remains hot in PostgreSQL's shared buffer cache.
-- **Write performance:** 95% of insert and update operations (on settled transactions) do not touch or lock this index, drastically reducing write amplification and WAL generation.
+- **Size reduction:** Because the partial index indexes only the small subset of non-settled rows, its physical footprint is a fraction of a full-table index, ensuring it remains hot in PostgreSQL's shared buffer cache.
+- **Write performance:** Insert and update operations on already settled transactions do not touch or modify this index, reducing write amplification, index bloat, and WAL generation.
 
 ---
 
@@ -794,7 +808,7 @@ When selecting a background execution pattern for long-running jobs (PDF report 
 | **When to Choose** | Rapid prototype with no external dependencies. | Complex legacy workflows requiring RabbitMQ or multi-language workers. | Fast modern async Python services deployed on VPS/Kubernetes. | **Recommended for Injani Systems GCP architecture.** |
 
 > **Senior Engineering Note on Python Concurrency:**  
-> `asyncio` in Python is primarily useful for concurrent I/O-bound work (such as non-blocking database queries, third-party API calls, and streaming responses). CPU-bound processing (such as image transcoding, heavy cryptographic hashing, or intensive data processing) blocks the event loop and generally requires a different strategy, such as multi-process pools or dedicated compute workers.
+> Async is primarily useful for concurrent I/O-bound workloads (such as non-blocking database queries, external HTTP calls, and webhook processing). CPU-bound work generally benefits more from separate processes, workers, or dedicated compute rather than simply adding async syntax.
 
 ---
 
@@ -980,7 +994,7 @@ Deployment (Manual / Guarded)
 ```
 
 #### 1. Quality CI Workflow (`.github/workflows/ci.yml`):
-Runs automatically on every `push` and `pull_request` against `main`. It has zero dependencies on private cloud infrastructure credentials, ensuring the assessment repository runs 100% GREEN for evaluators:
+Runs automatically on every `push` and `pull_request` against `main`. It has zero dependencies on private cloud infrastructure credentials, ensuring the assessment repository runs GREEN for evaluators:
 ```yaml
 name: Quality CI Pipeline
 

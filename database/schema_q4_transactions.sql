@@ -57,8 +57,8 @@ WHERE status = 'PENDING';
 -- OPTIMIZATION STRATEGY 3: DECLARATIVE RANGE PARTITIONING (TABLE REDESIGN)
 -- ============================================================================
 -- Partition by created_at range (monthly).
--- Query planner performs Partition Pruning, immediately excluding 95%+ of partitions
--- without even touching their index or data pages!
+-- Query planner performs Partition Pruning, immediately excluding irrelevant partitions
+-- without scanning their index or data pages.
 
 CREATE TABLE transactions_partitioned (
     id BIGINT GENERATED ALWAYS AS IDENTITY,
