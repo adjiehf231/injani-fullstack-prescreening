@@ -15,7 +15,7 @@ It includes:
 - A complete, runnable **Next.js 14 (App Router)** frontend with Edge Middleware, cryptographic JWT verification (`jose`), and SLA analytics dashboard.
 - A complete, runnable **FastAPI (Python)** backend with Pydantic v2 schemas, cryptographic JWT verification, Cloud Tasks worker endpoint, rate limiting, and WhatsApp order extraction service.
 - Production **PostgreSQL 16** schemas with generated columns, range partitioning, and keyset-aligned indexing.
-- Automated test suites (23 backend unit tests with pytest; frontend typechecking, linting, 8 strict cryptographic authentication tests via tsx, and Next.js production build).
+- Automated test suites (26 backend unit tests with pytest; frontend typechecking, linting, 8 strict cryptographic authentication tests via tsx, and Next.js production build).
 - Separated GitHub Actions workflows: zero-credential automated Quality CI ([`.github/workflows/ci.yml`](./.github/workflows/ci.yml)) and guarded manual cloud deployment ([`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml)).
 - Generated PDF technical report: [`docs/Adjie_Hari_Fajar_Fullstack_Developer_Prescreening_PT_Injani_Systems.pdf`](./docs/Adjie_Hari_Fajar_Fullstack_Developer_Prescreening_PT_Injani_Systems.pdf).
 

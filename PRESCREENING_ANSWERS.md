@@ -81,7 +81,7 @@ What prompts me to seek a new opportunity is the desire for **expanded hands-on 
 > What is your expected gross monthly salary?
 
 ### Answer
-My expected compensation is negotiable and I am open to discussing a package that reflects the responsibilities, technical scope, working arrangement, and overall benefits of the role.
+My expected gross monthly salary is Rp15,000,000. I am still open to discussion depending on the responsibilities, working arrangement, benefits, and overall compensation package for the role.
 
 ---
 
@@ -977,7 +977,7 @@ Push / Pull Request
         │
         ▼
 [Quality CI Pipeline] (.github/workflows/ci.yml)
-├── Backend pytest (23 automated test cases)
+├── Backend pytest (26 automated test cases)
 ├── Frontend npm ci
 ├── TypeScript typecheck (tsc --noEmit)
 ├── ESLint (next lint)
@@ -1054,31 +1054,34 @@ Platform: Windows (Python 3.13.7, pytest 9.1.1)
 Command: pytest -v
 
 Results:
-tests/test_cloud_tasks_worker.py::test_cloud_task_worker_execution_success PASSED          [  4%]
-tests/test_cloud_tasks_worker.py::test_cloud_task_worker_dead_letter_on_max_retries PASSED [  8%]
-tests/test_error_and_security.py::test_standardized_validation_error_format PASSED         [ 13%]
-tests/test_error_and_security.py::test_standardized_not_found_error_format PASSED          [ 17%]
-tests/test_error_and_security.py::test_hmac_webhook_verification_success_and_tampering PASSED [ 21%]
-tests/test_error_and_security.py::test_rate_limiter_exceeded PASSED                       [ 26%]
-tests/test_idempotency_and_tasks.py::test_idempotent_order_submission_prevents_duplicate_runs PASSED [ 30%]
-tests/test_idempotency_and_tasks.py::test_concurrent_idempotency_request_conflict PASSED  [ 34%]
-tests/test_idempotency_and_tasks.py::test_async_task_progress_lifecycle[asyncio] PASSED    [ 39%]
-tests/test_jwt_security.py::test_valid_jwt_token_verification PASSED                      [ 43%]
-tests/test_jwt_security.py::test_forged_jwt_signature_rejected PASSED                     [ 47%]
-tests/test_jwt_security.py::test_tampered_payload_rejected PASSED                         [ 52%]
-tests/test_jwt_security.py::test_expired_jwt_token_rejected PASSED                        [ 56%]
-tests/test_jwt_security.py::test_malformed_jwt_token_rejected PASSED                      [ 60%]
-tests/test_jwt_security.py::test_empty_jwt_token_rejected PASSED                          [ 65%]
-tests/test_jwt_security.py::test_unsupported_algorithm_rejected PASSED                    [ 69%]
-tests/test_jwt_security.py::test_missing_exp_claim_rejected PASSED                        [ 73%]
-tests/test_order_extractor.py::test_order_intent_and_entity_extraction PASSED             [ 78%]
-tests/test_order_extractor.py::test_indonesian_unit_normalization PASSED                  [ 82%]
-tests/test_order_extractor.py::test_inquiry_intent_detection PASSED                       [ 86%]
-tests/test_order_extractor.py::test_complaint_intent_detection PASSED                     [ 91%]
-tests/test_order_extractor.py::test_prompt_builder_structure PASSED                       [ 95%]
-tests/test_order_extractor.py::test_evaluator_metrics_calculation PASSED                  [100%]
+tests/test_cloud_tasks_worker.py::test_cloud_task_worker_execution_success PASSED
+tests/test_cloud_tasks_worker.py::test_cloud_task_worker_dead_letter_on_max_retries PASSED
+tests/test_error_and_security.py::test_standardized_validation_error_format PASSED
+tests/test_error_and_security.py::test_standardized_not_found_error_format PASSED
+tests/test_error_and_security.py::test_hmac_webhook_verification_success_and_tampering PASSED
+tests/test_error_and_security.py::test_missing_webhook_secret_fails_closed PASSED
+tests/test_error_and_security.py::test_rate_limiter_exceeded PASSED
+tests/test_idempotency_and_tasks.py::test_idempotent_order_submission_prevents_duplicate_runs PASSED
+tests/test_idempotency_and_tasks.py::test_concurrent_idempotency_request_conflict PASSED
+tests/test_idempotency_and_tasks.py::test_async_task_progress_lifecycle[asyncio] PASSED
+tests/test_jwt_security.py::test_valid_jwt_token_verification PASSED
+tests/test_jwt_security.py::test_forged_jwt_signature_rejected PASSED
+tests/test_jwt_security.py::test_tampered_payload_rejected PASSED
+tests/test_jwt_security.py::test_expired_jwt_token_rejected PASSED
+tests/test_jwt_security.py::test_malformed_jwt_token_rejected PASSED
+tests/test_jwt_security.py::test_empty_jwt_token_rejected PASSED
+tests/test_jwt_security.py::test_unsupported_algorithm_rejected PASSED
+tests/test_jwt_security.py::test_missing_exp_claim_rejected PASSED
+tests/test_jwt_security.py::test_missing_jwt_secret_fails_closed PASSED
+tests/test_jwt_security.py::test_configured_jwt_secret_signing_and_verification PASSED
+tests/test_order_extractor.py::test_order_intent_and_entity_extraction PASSED
+tests/test_order_extractor.py::test_indonesian_unit_normalization PASSED
+tests/test_order_extractor.py::test_inquiry_intent_detection PASSED
+tests/test_order_extractor.py::test_complaint_intent_detection PASSED
+tests/test_order_extractor.py::test_prompt_builder_structure PASSED
+tests/test_order_extractor.py::test_evaluator_metrics_calculation PASSED
 
-======================= 23 passed in 1.08s =======================
+======================= 26 passed in 0.96s =======================
 ```
 
 ### 2. Frontend Verification (Next.js 14 App Router)
