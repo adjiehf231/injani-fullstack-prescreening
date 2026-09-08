@@ -2,23 +2,19 @@
  * PT Injani Systems - Fullstack Developer Prescreening
  * Q5(a): Next.js 14 App Router Middleware - Edge Authentication & Gating
  * 
- * ARCHITECTURAL DESIGN: Middleware vs. Route Handler
- * ---------------------------------------------------------------------------
- * 1. Edge Middleware (Coarse-Grained Gatekeeper):
- *    - Executes BEFORE route execution on Edge workers.
- *    - Validates token presence and expiration quickly.
- *    - Bypasses public endpoints (e.g. /api/auth/login, /api/webhooks/*).
- *    - Injects sanitized context headers (x-user-id, x-user-role) into the request.
- *    - Returns immediate 401 Unauthorized, saving server compute.
- * 
- * 2. Route Handler (Fine-Grained Domain Authorization):
- *    - Performs cryptographic verification if payload integrity is paramount.
- *    - Enforces Role-Based Access Control (RBAC) and resource ownership (e.g. user_id == order.user_id).
- *    - Accesses database/ORM directly (which Edge middleware cannot cleanly do).
+ * ARCHITECTURAL DESIGN:
+ * 1. Edge Middleware:
+ *    - Validates token presence, cryptographic signature, and expiration via `jose.jwtVerify`.
+ *    - Bypasses public endpoints (e.g. /api/auth/login, /api/healthz) and webhook callers (/api/webhooks/*).
+ *    - Injects verified claims (x-user-id, x-user-role, x-user-dept) into request headers.
+ *    - Fails closed: Rejects invalid or forged tokens immediately with 401 Unauthorized.
+ * 2. Route Handler:
+ *    - Enforces domain authorization, resource ownership (IDOR checks), and database access.
  */
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { jwtVerify } from 'jose';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -63,49 +59,49 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  try {
-    // Fast verification on Edge runtime
-    // In production: await jwtVerify(token, new TextEncoder().encode(process.env.JWT_SECRET))
-    const parts = token.split('.');
-    if (parts.length !== 3) {
-      throw new Error('Invalid token structure');
-    }
-
-    const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf-8'));
-    const now = Math.floor(Date.now() / 1000);
-
-    if (payload.exp && payload.exp < now) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: 'TOKEN_EXPIRED',
-            message: 'Session has expired. Please refresh your credentials.',
-            traceId: crypto.randomUUID(),
-          },
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    // Fails closed if server configuration is missing
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: 'SERVER_CONFIGURATION_ERROR',
+          message: 'Server authentication secret is not configured.',
+          traceId: crypto.randomUUID(),
         },
-        { status: 401 }
-      );
-    }
+      },
+      { status: 500 }
+    );
+  }
+
+  try {
+    const secret = new TextEncoder().encode(jwtSecret);
+    const { payload } = await jwtVerify(token, secret);
 
     // Forward verified claims downstream via request headers
     const requestHeaders = new Headers(request.headers);
-    requestHeaders.set('x-user-id', payload.sub || payload.userId || '');
-    requestHeaders.set('x-user-role', payload.role || 'user');
-    requestHeaders.set('x-user-dept', payload.departmentId || '');
+    requestHeaders.set('x-user-id', String(payload.sub || payload.userId || ''));
+    requestHeaders.set('x-user-role', String(payload.role || 'user'));
+    requestHeaders.set('x-user-dept', String(payload.departmentId || ''));
 
     return NextResponse.next({
       request: {
         headers: requestHeaders,
       },
     });
-  } catch {
+  } catch (err: unknown) {
+    const isExpired =
+      err && typeof err === 'object' && 'code' in err && err.code === 'ERR_JWT_EXPIRED';
+
     return NextResponse.json(
       {
         success: false,
         error: {
-          code: 'INVALID_TOKEN',
-          message: 'Supplied credentials are invalid or corrupted.',
+          code: isExpired ? 'TOKEN_EXPIRED' : 'INVALID_TOKEN',
+          message: isExpired
+            ? 'Session has expired. Please refresh your credentials.'
+            : 'Supplied credentials failed cryptographic verification.',
           traceId: crypto.randomUUID(),
         },
       },

@@ -1,7 +1,9 @@
 /**
  * PT Injani Systems - Fullstack Developer Prescreening
- * Q5(a): JWT Verification & Webhook HMAC Authentication Utilities
+ * Q5(a): Cryptographically Verified JWT & Webhook HMAC Authentication Utilities
  */
+
+import { jwtVerify, SignJWT } from 'jose';
 
 export interface UserSessionPayload {
   userId: string;
@@ -12,35 +14,46 @@ export interface UserSessionPayload {
 }
 
 /**
- * Validates a JWT bearer token using Web Crypto API.
- * In production: Verify signature using HMAC-SHA256 secret or RSA/ECDSA public key via `jose.jwtVerify`.
+ * Validates a JWT bearer token using genuine cryptographic HMAC-SHA256 signature verification via `jose`.
+ * Rejects forged tokens, tampered payloads, expired tokens, and malformed structures.
  */
 export async function verifyJwtToken(token: string, secretKey: string): Promise<UserSessionPayload> {
-  if (!token || token.length < 10) {
-    throw new Error('Malformed or empty token.');
+  if (!token || typeof token !== 'string' || token.trim() === '') {
+    throw new Error('Token is required.');
   }
 
-  // Parse standard 3-part JWT
-  const parts = token.split('.');
-  if (parts.length !== 3) {
-    throw new Error('Invalid JWT segment structure.');
+  if (!secretKey) {
+    throw new Error('Secret key is required for token verification.');
   }
 
-  try {
-    const payloadJson = Buffer.from(parts[1], 'base64url').toString('utf-8');
-    const payload = JSON.parse(payloadJson) as UserSessionPayload;
+  const secret = new TextEncoder().encode(secretKey);
+  
+  // Real cryptographic signature and claims verification
+  const { payload } = await jwtVerify(token, secret);
 
-    // Check expiration
-    const nowEpoch = Math.floor(Date.now() / 1000);
-    if (payload.exp && payload.exp < nowEpoch) {
-      throw new Error('Token has expired.');
-    }
+  return {
+    userId: String(payload.sub || payload.userId || ''),
+    email: String(payload.email || ''),
+    role: String(payload.role || 'user'),
+    departmentId: payload.departmentId ? String(payload.departmentId) : undefined,
+    exp: typeof payload.exp === 'number' ? payload.exp : 0,
+  };
+}
 
-    return payload;
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : 'Unknown parsing failure';
-    throw new Error(`Token verification failed: ${msg}`);
-  }
+/**
+ * Utility helper to generate genuine signed JWTs for testing and local authentication flows.
+ */
+export async function signJwtToken(
+  claims: { sub: string; email: string; role: string; departmentId?: string },
+  secretKey: string,
+  expiresIn = '1h'
+): Promise<string> {
+  const secret = new TextEncoder().encode(secretKey);
+  return new SignJWT(claims)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime(expiresIn)
+    .sign(secret);
 }
 
 /**
@@ -72,7 +85,7 @@ export async function verifyWebhookHmac(
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
 
-  // Constant-time length check and character comparison
+  // Constant-time comparison to prevent timing attacks
   if (computedHex.length !== cleanSig.length) return false;
   let mismatch = 0;
   for (let i = 0; i < computedHex.length; i++) {

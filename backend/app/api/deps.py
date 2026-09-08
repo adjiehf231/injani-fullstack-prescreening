@@ -7,7 +7,7 @@ import time
 from typing import Dict, Any, Optional
 from fastapi import Header, Request, HTTPException
 from app.core.errors import ConflictException, RateLimitExceededException, DomainException
-from app.core.security import mock_verify_jwt_token
+from app.core.security import verify_jwt_token
 
 
 class InMemoryIdempotencyStore:
@@ -94,8 +94,15 @@ rate_limiter = InMemoryRateLimiter(max_requests=10, window_seconds=60)
 
 
 async def get_current_user(authorization: Optional[str] = Header(None)) -> Dict[str, Any]:
-    """Validates JWT bearer token."""
-    return mock_verify_jwt_token(authorization)
+    """Validates and verifies JWT bearer token signature and expiration."""
+    if not authorization or not authorization.startswith("Bearer "):
+        raise DomainException(
+            message="Authorization bearer token required.",
+            code="UNAUTHORIZED",
+            status_code=401
+        )
+    token = authorization[7:].strip()
+    return verify_jwt_token(token)
 
 
 async def enforce_rate_limit(request: Request) -> None:

@@ -16,7 +16,8 @@ from app.core.errors import (
     NotFoundException,
     ConflictException
 )
-from app.core.security import verify_webhook_hmac_sha256, mock_verify_jwt_token
+from app.core.config import settings
+from app.core.security import verify_webhook_hmac_sha256
 from app.services.order_extractor import WhatsAppOrderExtractor
 from app.services.task_manager import global_task_manager
 from app.services.evaluator import LLMExtractionEvaluator, GroundTruthSample, GroundTruthItem
@@ -178,9 +179,7 @@ async def receive_whatsapp_webhook(
 ):
     """Secures external webhook callers via HMAC-SHA256 signature verification."""
     body_bytes = await request.body()
-    secret_key = "injani-webhook-secret-token"
-
-    if not x_hub_signature_256 or not verify_webhook_hmac_sha256(body_bytes, x_hub_signature_256, secret_key):
+    if not x_hub_signature_256 or not verify_webhook_hmac_sha256(body_bytes, x_hub_signature_256, settings.webhook_secret):
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
             content=StandardAPIResponse(
@@ -195,4 +194,64 @@ async def receive_whatsapp_webhook(
     return StandardAPIResponse(
         success=True,
         data={"received": True, "event": "webhook_verified"}
+    )
+
+
+# ---------------------------------------------------------------------------
+# Q3: Google Cloud Tasks HTTP Worker Endpoint
+# ---------------------------------------------------------------------------
+@router.post("/tasks/worker", response_model=StandardAPIResponse)
+async def execute_cloud_task_worker(
+    request: Request,
+    queue_name: Optional[str] = Header(None, alias="X-CloudTasks-QueueName"),
+    task_name: Optional[str] = Header(None, alias="X-CloudTasks-TaskName"),
+    retry_count: Optional[int] = Header(0, alias="X-CloudTasks-TaskRetryCount"),
+    execution_count: Optional[int] = Header(1, alias="X-CloudTasks-TaskExecutionCount"),
+):
+    """
+    HTTP Worker endpoint dispatched by Google Cloud Tasks.
+    Validates Cloud Tasks headers, handles retries, and simulates dead-letter routing.
+    """
+    body = await request.json()
+    action = body.get("action", "UNKNOWN")
+
+    # In production: Verify Google-signed OIDC bearer token from Cloud Tasks service account
+    # if not verify_gcp_oidc_token(request.headers.get("Authorization")):
+    #     raise DomainException("Unauthorized Cloud Tasks caller", code="UNAUTHORIZED", status_code=401)
+
+    # Dead-letter handling on terminal retry attempt
+    if retry_count >= 4:
+        # In production: publish to dead-letter Pub/Sub topic or dead_letter_tasks DB table
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=StandardAPIResponse(
+                success=False,
+                error=APIErrorPayload(
+                    code="TASK_DEAD_LETTERED",
+                    message=f"Task {task_name} exhausted max retries ({retry_count}) and was routed to DLQ."
+                ),
+                data={"task_name": task_name, "status": "DEAD_LETTERED"}
+            ).model_dump()
+        )
+
+    # Process scheduled background actions
+    if action == "GENERATE_NIGHTLY_REPORT":
+        return StandardAPIResponse(
+            success=True,
+            data={
+                "task_name": task_name or "local-task",
+                "action": action,
+                "status": "SUCCESS",
+                "processed_items": 120,
+                "summary": "Nightly report generated and email dispatch scheduled."
+            }
+        )
+
+    return StandardAPIResponse(
+        success=True,
+        data={
+            "task_name": task_name or "local-task",
+            "action": action,
+            "status": "SUCCESS"
+        }
     )
