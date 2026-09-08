@@ -1,0 +1,26 @@
+# Agents directory explicitly excluded
+.agents/
+
+# Python virtual environment & cache
+backend/.venv/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Node & dependencies
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Local environment secrets
+.env
+.env.local
+.env.*.local
+
+# OS generated files
+.DS_Store
+Thumbs.db
