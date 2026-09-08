@@ -23,7 +23,14 @@ def verify_webhook_hmac_sha256(
     Prevents tampering and spoofing from unauthorized callers.
     """
     secret = secret_key or settings.webhook_secret
-    if not signature_header or not secret:
+    if not secret:
+        raise DomainException(
+            message="Server configuration error: Webhook secret is not configured.",
+            code="SERVER_CONFIG_ERROR",
+            status_code=500
+        )
+
+    if not signature_header:
         return False
 
     expected_prefix = "sha256="
@@ -56,6 +63,12 @@ def create_signed_jwt(
 ) -> str:
     """Creates a genuine cryptographically signed JWT with HMAC-SHA256 (HS256)."""
     secret = secret_key or settings.jwt_secret
+    if not secret:
+        raise DomainException(
+            message="Server configuration error: JWT secret is not configured.",
+            code="SERVER_CONFIG_ERROR",
+            status_code=500
+        )
     header = {"alg": "HS256", "typ": "JWT"}
     body = {
         **payload,

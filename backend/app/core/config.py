@@ -13,14 +13,15 @@ class Settings(BaseModel):
     port: int = Field(default_factory=lambda: int(os.getenv("PORT", "8000")))
 
     # Authentication & Security Secrets (loaded from environment)
+    # Fail-closed: empty default ensures no predictable fallback secret in application runtime.
     jwt_secret: str = Field(
-        default_factory=lambda: os.getenv("JWT_SECRET", "dev-insecure-secret-key-must-change-in-production-32-chars")
+        default_factory=lambda: os.getenv("JWT_SECRET", "")
     )
     jwt_algorithm: str = "HS256"
     jwt_access_token_expire_minutes: int = 60
 
     webhook_secret: str = Field(
-        default_factory=lambda: os.getenv("WEBHOOK_SECRET", "dev-webhook-secret-token")
+        default_factory=lambda: os.getenv("WEBHOOK_SECRET", "")
     )
 
     # Database

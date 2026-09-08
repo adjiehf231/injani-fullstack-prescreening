@@ -10,6 +10,7 @@ from app.main import app
 from app.api.deps import rate_limiter
 from app.core.config import settings
 from app.core.security import verify_webhook_hmac_sha256
+from app.core.errors import DomainException
 
 
 @pytest.fixture
@@ -72,6 +73,31 @@ def test_hmac_webhook_verification_success_and_tampering(client):
     )
     assert res_invalid.status_code == 401
     assert res_invalid.json()["error"]["code"] == "INVALID_WEBHOOK_SIGNATURE"
+
+
+def test_missing_webhook_secret_fails_closed(monkeypatch, client):
+    """
+    Ensures that when WEBHOOK_SECRET is missing or empty,
+    webhook verification fails closed (HTTP 500 SERVER_CONFIG_ERROR)
+    rather than falling back to an insecure predictable secret.
+    """
+    monkeypatch.setattr(settings, "webhook_secret", "")
+    payload = b'{"event":"test"}'
+
+    # 1. Direct function call fails closed
+    with pytest.raises(DomainException) as exc_info:
+        verify_webhook_hmac_sha256(payload, "sha256=dummy")
+    assert exc_info.value.status_code == 500
+    assert exc_info.value.code == "SERVER_CONFIG_ERROR"
+
+    # 2. Endpoint integration fails closed with 500
+    res = client.post(
+        "/api/v1/webhooks/whatsapp",
+        content=payload,
+        headers={"X-Hub-Signature-256": "sha256=dummy"}
+    )
+    assert res.status_code == 500
+    assert res.json()["error"]["code"] == "SERVER_CONFIG_ERROR"
 
 
 def test_rate_limiter_exceeded(client):

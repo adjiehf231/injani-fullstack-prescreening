@@ -95,7 +95,7 @@ My expected compensation is negotiable and I am open to discussing a package tha
 
 ### a) End-to-End Architecture for Self-Hosted LLM (Gemma 3 / Ollama / vLLM)
 
-To eliminate recurring per-token commercial API costs (OpenAI/Gemini) while maintaining high availability and sub-second response times, we deploy an on-premise or cloud-hosted open-weight model stack:
+To eliminate recurring per-token commercial API costs (OpenAI/Gemini) while maintaining high availability and low-latency inference, we deploy an on-premise or cloud-hosted open-weight model stack:
 
 ```
 [WhatsApp Client] 
@@ -123,7 +123,7 @@ To eliminate recurring per-token commercial API costs (OpenAI/Gemini) while main
 2. **Decoupled Asynchronous Processing:**  
    Meta WhatsApp webhooks require an HTTP 200 acknowledgment within 3 seconds. To prevent timeouts during model inference spikes, the webhook handler immediately pushes the message into an in-memory queue or Redis/ARQ worker and returns `200 OK`.
 3. **Inference Engine (Ollama vs. vLLM):**  
-   - **Development & Small Deployments:** Ollama running `gemma3:4b` quantized to `Q4_K_M`, consuming ~3.5 GB VRAM or running efficiently on multi-core CPU with AVX-512.
+   - **Development & Small Deployments:** Ollama running `gemma3:4b` quantized to `Q4_K_M`, designed for low-latency local inference without recurring per-token API costs. Hardware requirements depend on model size, quantization, context length, concurrency, and serving runtime.
    - **Production Scale:** **vLLM** serving quantized Gemma 3 (`gemma3:4b` or `gemma3:12b`) with PagedAttention and continuous batching on an NVIDIA GPU (such as an L4 or A10G). vLLM improves token throughput through continuous batching and efficient KV-cache memory management; actual throughput gains depend on concurrent traffic, model size, and request lengths.
 4. **Constrained Decoding & Structured Outputs:**  
    Rather than letting the LLM output freeform prose, we enforce strict JSON generation using context grammars or guided decoding (via `format: "json"` in Ollama or regex/JSON schemas in vLLM).
@@ -926,7 +926,7 @@ flowchart TD
    - Google Cloud Scheduler triggers every night at 00:00 WIB (`0 17 * * * UTC`).
    - Cloud Scheduler enqueues a task to Cloud Tasks with an OIDC identity token.
    - Cloud Tasks delivers an HTTPS POST to `https://api.injani.co.id/api/v1/cron/nightly-report`.
-   - The worker validates the Google-signed OIDC token, queries the daily summary from PostgreSQL, compiles the HTML/PDF report, and sends it via SendGrid/Resend REST API over HTTPS.
+   - In production, the Cloud Tasks worker should validate the Google-signed OIDC token before processing the task (live Google OIDC verification is intentionally outside this local assessment implementation). The worker then queries the daily summary from PostgreSQL, compiles the HTML/PDF report, and sends it via SendGrid/Resend REST API over HTTPS.
 
 ---
 

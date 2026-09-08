@@ -309,7 +309,7 @@ def build_pdf():
         [Paragraph("<b>Hiring Organization</b>", styles['TableCell']), Paragraph("PT Injani Systems", styles['TableCellBold'])],
         [Paragraph("<b>Submission Date</b>", styles['TableCell']), Paragraph("September 2026", styles['TableCellBold'])],
         [Paragraph("<b>Repository</b>", styles['TableCell']), Paragraph("github.com/adjiehf231/injani-fullstack-prescreening", styles['TableCellBold'])],
-        [Paragraph("<b>Backend Test Status</b>", styles['TableCell']), Paragraph("pytest - 23/23 Automated Tests Passed (All Passed)", styles['TableCellBold'])],
+        [Paragraph("<b>Backend Test Status</b>", styles['TableCell']), Paragraph("pytest - 26/26 Automated Tests Passed (All Passed)", styles['TableCellBold'])],
         [Paragraph("<b>Frontend Auth Tests</b>", styles['TableCell']), Paragraph("tsx - 8/8 Strict Cryptographic Tests Passed", styles['TableCellBold'])],
         [Paragraph("<b>Frontend Build Status</b>", styles['TableCell']), Paragraph("Next.js 14 App Router - Typecheck, Lint & Build Passed", styles['TableCellBold'])],
         [Paragraph("<b>Security Verification</b>", styles['TableCell']), Paragraph("Cryptographic JWT Verification (jose) & HMAC Webhooks", styles['TableCellBold'])],

@@ -117,3 +117,36 @@ def test_missing_exp_claim_rejected():
     assert exc_info.value.status_code == 401
     assert exc_info.value.code == "INVALID_TOKEN"
     assert "Missing or invalid mandatory 'exp'" in exc_info.value.message
+
+
+def test_missing_jwt_secret_fails_closed(monkeypatch):
+    """
+    Ensures that when JWT_SECRET is missing or empty,
+    both signing and verification fail closed (HTTP 500 SERVER_CONFIG_ERROR)
+    rather than falling back to an insecure predictable secret.
+    """
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "jwt_secret", "")
+
+    # 1. Signing must fail closed
+    with pytest.raises(DomainException) as exc_create:
+        create_signed_jwt({"sub": "test_user"})
+    assert exc_create.value.status_code == 500
+    assert exc_create.value.code == "SERVER_CONFIG_ERROR"
+
+    # 2. Verification must fail closed
+    with pytest.raises(DomainException) as exc_verify:
+        verify_jwt_token("header.payload.signature")
+    assert exc_verify.value.status_code == 500
+    assert exc_verify.value.code == "SERVER_CONFIG_ERROR"
+
+
+def test_configured_jwt_secret_signing_and_verification():
+    """Verifies that signing and verifying work using the configured test secret."""
+    claims = {"sub": "usr_test_default", "role": "developer"}
+    token = create_signed_jwt(claims)
+    payload = verify_jwt_token(token)
+    assert payload["sub"] == "usr_test_default"
+    assert payload["role"] == "developer"
+
