@@ -37,8 +37,8 @@ CREATE TABLE transactions_unoptimized (
 -- 3. created_at DESC (Range comparison + pre-sorted for ORDER BY created_at DESC)
 -- Optional: INCLUDE (amount, currency) to allow 100% INDEX ONLY SCAN without heap access!
 
-CREATE INDEX idx_transactions_user_status_created 
-ON transactions_unoptimized (user_id, status, created_at DESC)
+CREATE INDEX idx_transactions_user_status_created_id 
+ON transactions_unoptimized (user_id, status, created_at DESC, id DESC)
 INCLUDE (amount, currency);
 
 

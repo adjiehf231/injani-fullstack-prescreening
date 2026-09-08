@@ -70,12 +70,18 @@ LIMIT 50;
 
 
 -- ============================================================================
--- 3. SCHEMA REWRITE: COVERING INDEX (INDEX-ONLY SCAN)
+-- 3. SCHEMA REWRITE: COVERING INDEX (INDEX-ONLY SCAN ELIGIBILITY)
 -- ============================================================================
--- With the covering index:
--- CREATE INDEX idx_transactions_covering 
--- ON transactions (user_id, status, created_at DESC) 
+-- With the aligned covering index:
+-- CREATE INDEX idx_transactions_user_status_created_id 
+-- ON transactions (user_id, status, created_at DESC, id DESC) 
 -- INCLUDE (amount, currency);
 --
--- The query engine does NOT visit the heap table pages at all if the Visibility Map 
--- confirms tuples are all-visible. Latency drops from 4,000ms to < 1.5ms.
+-- Planner Mechanics:
+-- 1. If the table's Visibility Map (VM) confirms all tuples in referenced 8KB pages 
+--    are "all-visible" (maintained by autovacuum), PostgreSQL fulfills this via 
+--    Index Only Scan with zero heap table page accesses.
+-- 2. If recent updates/inserts leave pages dirty, PostgreSQL falls back to fetching 
+--    unconfirmed tuples from heap pages (reflected in EXPLAIN as "Heap Fetches: N").
+-- 3. The compound tuple predicate `(created_at, id) < (:last_ts, :last_id)` maps 
+--    directly to the pre-sorted B-tree leaf order, avoiding any sort node.
