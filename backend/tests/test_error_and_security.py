@@ -8,6 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 from app.api.deps import rate_limiter
+from app.core.config import settings
 from app.core.security import verify_webhook_hmac_sha256
 
 
@@ -40,7 +41,7 @@ def test_standardized_not_found_error_format(client):
 
 
 def test_hmac_webhook_verification_success_and_tampering(client):
-    secret = "injani-webhook-secret-token"
+    secret = settings.webhook_secret
     payload = b'{"event":"message_received","text":"hello"}'
 
     # Valid signature
