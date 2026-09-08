@@ -99,16 +99,18 @@ It includes:
 │   ├── middleware.ts                       # Edge runtime JWT gatekeeper
 │   ├── .env.example                        # Frontend environment variable template
 │   ├── app/
-│   │   ├── layout.tsx                      # Root layout
-│   │   ├── page.tsx                        # Home landing page with links
-│   │   ├── globals.css                     # Base styling
+│   │   ├── layout.tsx                      # Root layout with top navigation shell
+│   │   ├── page.tsx                        # Engineering portal overview with system specs
+│   │   ├── globals.css                     # Base typography and accessibility styling
 │   │   ├── api/
 │   │   │   ├── orders/route.ts             # Protected API route with rate limiting
 │   │   │   └── webhooks/route.ts           # HMAC-protected webhook endpoint
 │   │   └── dashboard/
-│   │       ├── page.tsx                    # Q2: SLA Analytics Dashboard
+│   │       ├── page.tsx                    # Q2: SLA Analytics Dashboard (React Server Component)
 │   │       └── components/
-│   │           └── sla-charts.tsx          # Analytical metrics and backlog tables
+│   │           └── sla-charts.tsx          # Metric cards, P50/P90 bottleneck chart, department table
+│   ├── components/
+│   │   └── Navbar.tsx                      # Unified application navigation header
 │   ├── lib/
 │   │   ├── auth.ts                         # Cryptographic JWT verification (jose)
 │   │   ├── errors.ts                       # Standardized API response format
@@ -221,6 +223,12 @@ npm run dev
 ```
 - Web Application: `http://localhost:3000`
 - SLA Analytics Dashboard: `http://localhost:3000/dashboard`
+
+---
+
+## Frontend
+
+The assessment includes a responsive Next.js dashboard using TypeScript and Tailwind CSS. Metrics shown in the UI are sample data used to demonstrate presentation and frontend structure.
 
 ---
 
