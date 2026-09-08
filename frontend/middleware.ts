@@ -9,8 +9,8 @@
  *    - Injects verified claims (x-user-id, x-user-role, x-user-dept) into request headers.
  *    - Fails closed: Rejects invalid or forged tokens immediately with 401 Unauthorized.
  * 2. Route Handler:
- *    - Enforces domain authorization where required.
- *    - Object-level ownership validation is a production consideration.
+ *    - Applies request validation, rate limiting, and idempotency controls.
+ *    - Role/permission authorization and object-level ownership (IDOR protection) are production considerations.
  */
 
 import { NextResponse } from 'next/server';

@@ -34,7 +34,7 @@ It includes:
   - **Q2:** SLA analytics dashboard architecture, PostgreSQL generated columns schema, and multi-step approval bottleneck tracking.
   - **Q3:** Google Cloud Tasks scheduled workflows: local emulation, production Cloud Logging / Cloud Trace monitoring, and dead-letter handling.
   - **Q4:** PostgreSQL query diagnosis with `EXPLAIN (ANALYZE, BUFFERS)`, composite index order `(user_id, status, created_at DESC, id DESC)` for keyset pagination, and table partitioning.
-  - **Q5:** Next.js 14 API architecture: cryptographic JWT verification in Edge Middleware with `jose`, defense-in-depth authorization (IDOR prevention), rate limiting, and RFC 7807 error envelopes.
+  - **Q5:** Next.js 14 API architecture: cryptographic JWT verification in Edge Middleware with `jose`, rate limiting, RFC 7807 error envelopes, and production considerations for role-based authorization and object-level IDOR protection.
   - **Q6:** Python async workers, comparison of FastAPI `BackgroundTasks` vs Celery vs Cloud Tasks, task progress reporting, and HTTP idempotency locks.
   - **Q7:** End-to-end fullstack system design, Docker containers, Workload Identity Federation (WIF) CI/CD, and GCP Cloud Run deployment.
 

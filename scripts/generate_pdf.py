@@ -614,7 +614,7 @@ def build_pdf():
         "• <i>Open-Weight LLM:</i> The reference architecture targets Gemma 3 (4B / 12B) served via vLLM with PagedAttention on an NVIDIA GPU (L4 / A10G) or Ollama for local prototyping. The repository includes an automated deterministic evaluation harness and prompt template to ensure zero-cost testing without GPU dependencies.<br/>"
         "• <i>State Persistence:</i> For local review, rate limiting and idempotency stores are implemented as thread-safe in-memory stores. In multi-container cloud deployments (Cloud Run + Vercel), these back cleanly to Upstash Redis or AWS ElastiCache without contract changes.<br/><br/>"
         "<b>2. Production Scaling Recommendations:</b><br/>"
-        "• <i>PostgreSQL:</i> Use declarative monthly range partitioning on <code>transactions</code> to maintain constant-time B-tree indexes as transaction volumes exceed 10M+ rows.<br/>"
+        "• <i>PostgreSQL:</i> Use declarative monthly range partitioning on <code>transactions</code> to bound B-tree index depth and maintain fast cursor-based seeks as transaction volumes exceed 10M+ rows.<br/>"
         "• <i>Security:</i> Maintain strict separation between coarse-grained Edge authentication (HMAC-SHA256 signature verification via <code>jose</code>) and backend authorization (object-level tenant/user ownership verification).<br/>"
         "• <i>DevOps:</i> All cloud container deployments leverage Google Cloud Workload Identity Federation (WIF) to eliminate long-lived service account JSON keys."
     )

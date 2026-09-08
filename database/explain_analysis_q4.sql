@@ -58,7 +58,8 @@ WHAT A SENIOR ENGINEER LOOKS FOR IN THE EXPLAIN (ANALYZE, BUFFERS) OUTPUT:
 -- LIMIT 50 OFFSET 4950;
 
 -- Optimized Senior Rewrite: Keyset / Cursor Pagination
--- O(1) jump using index Seek rather than O(N) Scan-and-Discard:
+-- Uses an indexed B-tree seek from the cursor and avoids the growing scan-and-discard cost of deep OFFSET pagination.
+-- B-tree seek is approximately O(log n), followed by reading k rows for the requested page:
 SELECT id, user_id, amount, currency, status, created_at
 FROM transactions_unoptimized
 WHERE user_id = :user_id

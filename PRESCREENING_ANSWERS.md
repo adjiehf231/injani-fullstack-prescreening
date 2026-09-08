@@ -623,10 +623,11 @@ CREATE TABLE transactions_y2026m08 PARTITION OF transactions
 **Benefit:** When querying for August 2026, PostgreSQL performs **Partition Pruning**. It scans only the relevant partition, ignoring other monthly partitions entirely. Vacuuming, index maintenance, and archival of old partitions (detach partition to cold storage) become fast metadata operations with minimal locking.
 
 #### 2. Keyset (Cursor-Based) Pagination instead of `OFFSET`:
-Using `OFFSET 50000` requires PostgreSQL to scan and discard 50,000 rows. We rewrite pagination to use cursor comparison:
+Using `OFFSET 50000` requires PostgreSQL to scan and discard 50,000 rows. Keyset pagination allows PostgreSQL to use the composite B-tree index to seek from the last cursor position in approximately $O(\log n)$, followed by reading the $k$ requested page rows ($O(\log n + k)$, where $n$ is indexed rows and $k$ is page size). This avoids the scan-and-discard cost that grows linearly with deep `OFFSET` pagination:
 
 ```sql
--- Keyset pagination: O(1) B-tree Seek
+-- Keyset pagination uses the composite index to seek from the cursor
+-- and avoids the increasing scan-and-discard cost of deep OFFSET pagination.
 SELECT id, user_id, amount, status, created_at
 FROM transactions
 WHERE user_id = :user_id
@@ -663,18 +664,19 @@ In Next.js 14 App Router, authentication and authorization must follow a strict 
   │                                                             x-user-id, x-user-role, x-user-email
   ▼
 [Route Handler] (frontend/app/api/orders/route.ts)
-  ├─ Read verified identity headers from request
-  ├─ Server-Side Authorization:
-  │    ├─ Role Check (e.g., admin vs. customer)
-  │    └─ Production Consideration: Object-level ownership check (verify x-user-id owns target record to prevent IDOR)
-  └─ Execute business logic & database transaction
+  ├─ Read verified identity headers (x-user-id, x-user-role, x-user-email)
+  ├─ Apply request validation, rate limiting, and idempotency controls
+  ├─ Production considerations:
+  │    ├─ Role / permission authorization
+  │    └─ Object-level ownership / IDOR protection
+  └─ Execute / forward business request
 ```
 
 #### 1. The Critical Distinction: Authentication vs. Authorization
-- **Authentication (AuthN — "Who are you?"):**  
-  Proving user identity cryptographically. **Never trust client-provided tokens by merely splitting base64 strings (`token.split('.')[1]`) or using unverified `JSON.parse()`.** Anyone can craft a base64 payload containing `{"role": "admin"}`. In our implementation, Next.js Edge Middleware and Python backend both verify the HMAC-SHA256 signature using `JWT_SECRET` before reading any claims. If the signature does not match or the token is expired, the request is rejected immediately with `401 Unauthorized`.
-- **Authorization (AuthZ — "What are you permitted to do?"):**  
-  Checking permissions against the target resource. Middleware handles edge identity verification and claims decoding. *Production consideration:* Resource-level authorization in production should verify that the authenticated user owns or is authorized to access the requested object in the database (mitigating Insecure Direct Object References — IDOR).
+- **Authentication (AuthN — "Who are you?" — Implemented):**  
+  Proving user identity cryptographically. **Never trust client-provided tokens by merely splitting base64 strings (`token.split('.')[1]`) or using unverified `JSON.parse()`.** Anyone can craft a base64 payload containing `{"role": "admin"}`. In our implementation, Next.js Edge Middleware and Python backend both verify the HMAC-SHA256 signature using `JWT_SECRET` before reading any claims. If the signature does not match or the token is expired, the request is rejected immediately with `401 Unauthorized`. Verified identity headers (`x-user-id`, `x-user-role`, `x-user-email`) are then injected and forwarded to downstream handlers.
+- **Authorization (AuthZ — "What are you permitted to do?" — Production Considerations):**  
+  Checking permissions against the target resource. In our current implementation, Edge Middleware handles edge identity verification and forwards verified claims, while the route handler enforces request payload validation, rate limiting, and idempotency controls. In production, domain route handlers and upstream services must add explicit role/permission checks (e.g., verifying user roles before allowing privileged actions) and object-level ownership validation (e.g., ensuring `x-user-id` owns the target entity before reading or modifying it, mitigating Insecure Direct Object References — IDOR).
 
 #### 2. Implementation in Next.js (Edge Runtime with `jose`):
 ```typescript
