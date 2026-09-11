@@ -118,9 +118,6 @@ It includes:
 │   │   ├── errors.ts                       # Standardized API response format
 │   │   ├── rate-limit.ts                   # In-memory sliding window rate limiter
 │   │   └── sla-data.ts                     # Deterministic assessment dataset & pure aggregations
-│   └── scripts/
-│       ├── test-auth.ts                    # Automated auth and signature verification test
-│       └── test-sla-data.ts                # Verification script for SLA data & filter logic
 │
 ├── .github/
 │   └── workflows/
