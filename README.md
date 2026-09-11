@@ -107,6 +107,8 @@ It includes:
 │   │   │   └── webhooks/route.ts           # HMAC-protected webhook endpoint
 │   │   └── dashboard/
 │   │       ├── page.tsx                    # Q2: SLA Analytics Dashboard (React Server Component)
+│   │       ├── loading.tsx                 # Restrained skeleton loading fallback
+│   │       ├── error.tsx                   # Client error boundary
 │   │       └── components/
 │   │           └── sla-charts.tsx          # Metric cards, P50/P90 bottleneck chart, department table
 │   ├── components/
@@ -114,9 +116,11 @@ It includes:
 │   ├── lib/
 │   │   ├── auth.ts                         # Cryptographic JWT verification (jose)
 │   │   ├── errors.ts                       # Standardized API response format
-│   │   └── rate-limit.ts                   # In-memory sliding window rate limiter
+│   │   ├── rate-limit.ts                   # In-memory sliding window rate limiter
+│   │   └── sla-data.ts                     # Deterministic assessment dataset & pure aggregations
 │   └── scripts/
-│       └── test-auth.ts                    # Automated auth and signature verification test
+│       ├── test-auth.ts                    # Automated auth and signature verification test
+│       └── test-sla-data.ts                # Verification script for SLA data & filter logic
 │
 ├── .github/
 │   └── workflows/
@@ -228,7 +232,7 @@ npm run dev
 
 ## Frontend
 
-The assessment includes a responsive Next.js dashboard using TypeScript and Tailwind CSS. Metrics shown in the UI are sample data used to demonstrate presentation and frontend structure.
+The Next.js frontend includes a responsive SLA analytics dashboard. The dashboard uses a deterministic assessment dataset with URL-driven filters for demonstrating server-rendered analytical views.
 
 ---
 
