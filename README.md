@@ -127,8 +127,13 @@ It includes:
 │       ├── ci.yml                          # Zero-secret Quality CI (Lint, Typecheck, Test, Build)
 │       └── deploy.yml                      # Guarded Cloud Run and Vercel deployment pipeline
 │
-└── docs/
-    └── Adjie_Hari_Fajar_Fullstack_Developer_Prescreening_PT_Injani_Systems.pdf
+├── docs/
+│   ├── Adjie_Hari_Fajar_Fullstack_Developer_Prescreening_PT_Injani_Systems.pdf
+│   └── Adjie_Hari_Fajar_Fullstack_Developer_Prescreening_PT_Injani_Systems.docx
+│
+└── scripts/
+    ├── generate_pdf.py                     # ReportLab generator for PDF report
+    └── generate_docx.py                    # python-docx generator for Word (.docx) report
 ```
 
 ---
